@@ -50,7 +50,7 @@ class Question(Base):
         return self.published_at >= now() - datetime.timedelta(days=1)
 
     def __repr__(self):
-        return "#{}: {}".format(self.id, self.question_text)
+        return f"#{self.id}: {self.question_text}"
 
     def __str__(self):
         """Python default and admin UI string presentation."""
@@ -80,7 +80,7 @@ class Choice(Base):
 
     def __repr__(self):
         """Shell and debugger presentation."""
-        return "#{}: {}".format(self.id, self.choice_text)
+        return f"#{self.id}: {self.choice_text}"
 
     def __str__(self):
         """Python default and admin UI string presentation."""

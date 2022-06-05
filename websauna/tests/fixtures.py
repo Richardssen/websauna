@@ -45,9 +45,7 @@ def test_config_path(request) -> str:
 
     assert getattr(request.config.option, "ini", None), "You need to give --ini test.ini command line option to py.test to find our test settings"
 
-    config_uri = os.path.abspath(request.config.option.ini)
-
-    return config_uri
+    return os.path.abspath(request.config.option.ini)
 
 
 @pytest.fixture(scope='session')
@@ -127,12 +125,7 @@ def get_app(ini_settings: dict, extra_init: t.Optional[t.Callable] = None) -> Ro
 
     You can pass extra callable which is called back when Initializer is about to finish. This allows you to poke app configuration easily.
     """
-    if extra_init:
-        # Convert extra init to string, because Paster stack doesn't allow raw objects through configuration
-        options = {"extra_init": get_qual_name(extra_init)}
-    else:
-        options = None
-
+    options = {"extra_init": get_qual_name(extra_init)} if extra_init else None
     data = bootstrap(ini_settings["_ini_file"], options=options)
     return data["app"]
 
@@ -300,13 +293,11 @@ def scaffold_webdriver():
 
     TODO: This fixture does not serve purpose outside Websauna and should be moved somewhere.
     """
-    # Workaround broken Firefox webdriver problem and allow use Chrome on OSX
-    webdriver = os.environ.get("SPLINTER_WEBDRIVER")
-    if webdriver:
-        webdriver_param = "--splinter-webdriver=" + webdriver
-    else:
-        webdriver_param = ""
-    return webdriver_param
+    return (
+        f"--splinter-webdriver={webdriver}"
+        if (webdriver := os.environ.get("SPLINTER_WEBDRIVER"))
+        else ""
+    )
 
 
 def pytest_addoption(parser):

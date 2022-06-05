@@ -54,8 +54,7 @@ class ResourceRegistry(_ResourceRegistry):
         """
         resources = form.get_widget_resources()
         js_resources = resources['js']
-        js_links = [request.static_url(r) for r in js_resources]
-        return js_links
+        return [request.static_url(r) for r in js_resources]
 
     def get_widget_css_urls(self, request: Request, form: Form):
         """Generate JS and CSS tags for a widget.
@@ -66,5 +65,4 @@ class ResourceRegistry(_ResourceRegistry):
         """
         resources = form.get_widget_resources()
         css_resources = resources['css']
-        css_links = [request.static_url(r) for r in css_resources]
-        return css_links
+        return [request.static_url(r) for r in css_resources]

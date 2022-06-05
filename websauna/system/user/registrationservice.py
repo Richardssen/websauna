@@ -65,11 +65,10 @@ class DefaultRegistrationService:
         self.request.registry.notify(NewRegistrationEvent(self.request, user, None, user_data))
         self.request.dbsession.flush()  # in order to get the id
 
-        if autologin:
-            login_service = get_login_service(self.request)
-            return login_service.authenticate_user(user, login_source="email")
-        else:  # not autologin: user must log in just after registering.
+        if not autologin:
             return render_to_response('login/waiting_for_activation.html', {"user": user}, request=self.request)
+        login_service = get_login_service(self.request)
+        return login_service.authenticate_user(user, login_source="email")
 
     def create_email_activation(self, user: IUser):
         """Create through-the-web user sign up with his/her email.

@@ -41,7 +41,7 @@ class EmailSocialLoginMapper:
         self.provider_id = provider_id
         self.registry = registry
 
-    def activate_user(request, dbsession: Session, user: IUserModel):
+    def activate_user(self, dbsession: Session, user: IUserModel):
         """Checks to perform when the user becomes a valid user for the first time.
 
         If this user has already started sign up process through email we need to cancel that.
@@ -102,8 +102,7 @@ class EmailSocialLoginMapper:
         :param email: User email.
         :return: User object.
         """
-        user = dbsession.query(user_model).filter_by(email=email).first()
-        return user
+        return dbsession.query(user_model).filter_by(email=email).first()
 
     def get_or_create_user_by_social_medial_email(self, request: Request, user: authomatic.core.User) -> IUserModel:
         """Given a user information returned by Authomatic, return an existing User object from our database or create one if it does not exists.

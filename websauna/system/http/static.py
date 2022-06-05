@@ -111,11 +111,12 @@ class CopyAndHashCollector:
         target = self.get_permanent_path(root, static_view_name, relative_path, hash)
         rel_target = os.path.relpath(target, self.root)
 
-        if os.path.exists(target):
-            # Let's avoid unnecessary copy
-            if os.path.getsize(target) == entry.stat().st_size:
-                # Same size, not a corrupted copy
-                return rel_target
+        if (
+            os.path.exists(target)
+            and os.path.getsize(target) == entry.stat().st_size
+        ):
+            # Same size, not a corrupted copy
+            return rel_target
 
         dir = os.path.dirname(target)
         os.makedirs(dir, exist_ok=True)

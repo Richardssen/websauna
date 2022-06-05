@@ -86,8 +86,7 @@ def test_add_choice_no_question(browser: DriverAPI, registry, web_server, dbsess
 
     b = browser
 
-    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
-
+    create_logged_in_user(dbsession, registry, web_server, b, admin=True)
     b.visit(web_server)
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#btn-panel-add-choice").click()
@@ -110,8 +109,7 @@ def test_add_choice_question(browser: DriverAPI, registry, web_server, dbsession
 
     b = browser
 
-    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
-
+    create_logged_in_user(dbsession, registry, web_server, b, admin=True)
     b.visit(web_server)
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#btn-panel-add-choice").click()
@@ -136,8 +134,7 @@ def test_add_choice_choose_no_question(browser: DriverAPI, registry, web_server,
         dbsession.flush()
 
     b = browser
-    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
-
+    create_logged_in_user(dbsession, registry, web_server, b, admin=True)
     b.visit(web_server)
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#btn-panel-add-choice").click()
@@ -172,9 +169,8 @@ def test_edit_choice_question(browser: DriverAPI, registry, web_server, dbsessio
         c_slug = uuid_to_slug(c.uuid)
 
     b = browser
-    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
-
-    b.visit("{}/admin/models/choice/{}/edit".format(web_server, c_slug))
+    create_logged_in_user(dbsession, registry, web_server, b, admin=True)
+    b.visit(f"{web_server}/admin/models/choice/{c_slug}/edit")
     b.select("question", q2_slug)
     b.find_by_name("save").click()
 
@@ -202,9 +198,8 @@ def test_edit_choice_remove_question(browser: DriverAPI, registry, web_server, d
         c_slug = uuid_to_slug(c.uuid)
 
     b = browser
-    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
-
-    b.visit("{}/admin/models/choice/{}/edit".format(web_server, c_slug))
+    create_logged_in_user(dbsession, registry, web_server, b, admin=True)
+    b.visit(f"{web_server}/admin/models/choice/{c_slug}/edit")
     b.select("question", "")
     b.find_by_name("save").click()
 
@@ -232,9 +227,8 @@ def test_question_shows_choices(browser: DriverAPI, registry, web_server, dbsess
         dbsession.flush()
 
     b = browser
-    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
-
-    b.visit("{}/admin/models/question/{}/show".format(web_server, q_slug))
+    create_logged_in_user(dbsession, registry, web_server, b, admin=True)
+    b.visit(f"{web_server}/admin/models/question/{q_slug}/show")
     assert b.is_text_present("Baby don't hurt me")
 
 
@@ -249,9 +243,8 @@ def test_question_listing(browser: DriverAPI, registry, web_server, dbsession):
         dbsession.flush()
 
     b = browser
-    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
-
-    b.visit("{}/admin/models/question/listing".format(web_server))
+    create_logged_in_user(dbsession, registry, web_server, b, admin=True)
+    b.visit(f"{web_server}/admin/models/question/listing")
     assert b.is_text_present("What is love")
 
 
@@ -272,9 +265,8 @@ def test_question_delete(browser: DriverAPI, registry, web_server, dbsession):
         q_slug = uuid_to_slug(q.uuid)
 
     b = browser
-    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
-
-    b.visit("{}/admin/models/question/{}".format(web_server, q_slug))
+    create_logged_in_user(dbsession, registry, web_server, b, admin=True)
+    b.visit(f"{web_server}/admin/models/question/{q_slug}")
     b.find_by_css("#btn-crud-delete").click()
     b.find_by_css("#btn-delete-yes").click()
 

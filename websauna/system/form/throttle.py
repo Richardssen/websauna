@@ -62,7 +62,12 @@ def create_throttle_validator(name: str, max_actions_in_time_window: int, time_w
 
         def inner(node, value):
             # Check we don't have many invites going out
-            if rollingwindow.check(request.registry, "throttle_" + name, window=time_window_in_seconds, limit=limit):
+            if rollingwindow.check(
+                request.registry,
+                f"throttle_{name}",
+                window=time_window_in_seconds,
+                limit=limit,
+            ):
 
                 # Alert devops through Sentry
                 logger.warning("Excessive form submissions on %s", name)
@@ -79,17 +84,17 @@ def _read_throttle_settings(settings, setting):
 
     setting_value = settings.get(setting)
     if not setting_value:
-        raise RuntimeError("Cannot read setting: {}".format(setting))
+        raise RuntimeError(f"Cannot read setting: {setting}")
 
     parts = setting_value.split("/")
     if len(parts) != 2:
-        raise RuntimeError("Bad throttle setting format: {}".format(setting_value))
+        raise RuntimeError(f"Bad throttle setting format: {setting_value}")
 
     try:
         window = int(parts[0])
         limit = int(parts[1])
     except ValueError:
-        raise RuntimeError("Could not parse: {}".format(setting_value))
+        raise RuntimeError(f"Could not parse: {setting_value}")
 
     return limit, window
 
@@ -162,7 +167,7 @@ def throttled_view(
                 hits = limit
 
             if rollingwindow.check(request.registry, key_name, window=window, limit=hits):
-                raise httpexceptions.HTTPTooManyRequests("Too many requests against {}".format(name))
+                raise httpexceptions.HTTPTooManyRequests(f"Too many requests against {name}")
 
             return view_callable(context, request)
 
@@ -182,4 +187,4 @@ def clear_throttle(request: Request, key_name: str):
 
     """
     redis = get_redis(request)
-    redis.delete("throttle_{}".format(key_name))
+    redis.delete(f"throttle_{key_name}")

@@ -31,8 +31,10 @@ class FlashMessage(object):
         :param extra: Extra payload (not used by the default renderer)
         """
         assert (plain and not rich) or (rich and not plain)
-        assert kind in self.KINDS, "Unknown kind of alert: \"{}\". " \
-            "Possible kinds are {}".format(kind, self.KINDS)
+        assert (
+            kind in self.KINDS
+        ), f'Unknown kind of alert: "{kind}". Possible kinds are {self.KINDS}'
+
 
         self.kind = kind
         self.rich = rich
@@ -41,7 +43,7 @@ class FlashMessage(object):
         self.extra = extra
 
     def __repr__(self):
-        return 'FlashMessage("{}")'.format(self.plain)
+        return f'FlashMessage("{self.plain}")'
 
     def __unicode__(self):
         return self.rich or self.plain

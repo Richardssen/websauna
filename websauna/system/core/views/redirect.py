@@ -55,11 +55,7 @@ def redirect_view(path: str, new_path: str = None, new_route: str = None, status
 
     def redirect_view(request):
 
-        if new_path:
-            mapped_path = new_path
-        else:
-            mapped_path = request.route_url(new_route)
-
+        mapped_path = new_path or request.route_url(new_route)
         if status_code == 302:
             return HTTPFound(mapped_path)
         elif status_code == 301:

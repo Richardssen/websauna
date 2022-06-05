@@ -16,15 +16,14 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 def extra_init(init: Initializer):
     """Configure one templated only view."""
     config = init.config
-    config.add_jinja2_search_path(HERE + "/templates", name=".html")
+    config.add_jinja2_search_path(f"{HERE}/templates", name=".html")
     add_template_only_view(config, "/dummy", "dummy", "dummy.html")
 
 
 @pytest.fixture(scope="module")
 def app(request, ini_settings):
     """Construct a WSGI app with tutorial models and admins loaded."""
-    app = get_app(ini_settings, extra_init=extra_init)
-    return app
+    return get_app(ini_settings, extra_init=extra_init)
 
 
 @pytest.fixture(scope="module")
@@ -38,4 +37,4 @@ def web_server(request, app):
 def test_template_only_view(browser, web_server):
     """See that we can register and render a template only view."""
 
-    browser.visit(web_server + "/dummy")
+    browser.visit(f"{web_server}/dummy")

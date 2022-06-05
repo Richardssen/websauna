@@ -45,7 +45,7 @@ def test_enter_admin(web_server, browser, dbsession, init):
         assert u.is_admin()
 
     b = browser
-    b.visit(web_server + "/login")
+    b.visit(f"{web_server}/login")
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
@@ -68,7 +68,7 @@ def test_non_admin_user_denied(web_server, browser, dbsession, init):
         assert not u.is_admin()
 
     b = browser
-    b.visit(web_server + "/login")
+    b.visit(f"{web_server}/login")
 
     b.fill("username", "example2@example.com")
     b.fill("password", PASSWORD)
@@ -76,7 +76,7 @@ def test_non_admin_user_denied(web_server, browser, dbsession, init):
 
     assert not b.is_element_visible_by_css("#nav-admin")
 
-    b.visit(web_server + "/admin/")
+    b.visit(f"{web_server}/admin/")
     assert b.is_element_visible_by_css("#forbidden")
 
 
@@ -86,7 +86,9 @@ def test_context_sensitive_shell(web_server, browser, dbsession, init):
     """See we can open a context sensitive shell in admin."""
 
     b = browser
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#latest-user-shortcut").click()

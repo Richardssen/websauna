@@ -102,8 +102,9 @@ class FormGenerator:
         binder = self.schema_binder or default_schema_binder
         schema = binder(schema=schema, request=request, context=context, mode=mode, model=model)
 
-        form = deform.Form(schema, buttons=buttons, resource_registry=ResourceRegistry(request))
-        return form
+        return deform.Form(
+            schema, buttons=buttons, resource_registry=ResourceRegistry(request)
+        )
 
 
 class SQLAlchemyFormGenerator(FormGenerator):

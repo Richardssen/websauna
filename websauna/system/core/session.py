@@ -41,7 +41,7 @@ def ignore_session(url: str) -> bool:
     path = urlparse(url).path
     to_notebook = path.startswith('/notebook/')
     ext = str(os.path.splitext(path)[1]).lower()
-    return True if (ext in NO_SESSION_FILE_EXTENSIONS and not to_notebook) else False
+    return ext in NO_SESSION_FILE_EXTENSIONS and not to_notebook
 
 
 class WebsaunaSession(RedisSession):
@@ -74,10 +74,7 @@ class WebsaunaSession(RedisSession):
 
     def get_csrf_token(self):
         token = self.get('_csrft_', None)
-        if token is None:
-            token = self.new_csrf_token()
-        else:
-            token = str(token)
+        token = self.new_csrf_token() if token is None else str(token)
         return token
 
 

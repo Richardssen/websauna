@@ -59,8 +59,7 @@ class WebsaunaTask(Task):
         if status == 'FAILURE':
             logger.debug('Closing request task %s, status %s', self, status)
             tm = request.transaction_manager
-            txn = tm._txn
-            if txn:
+            if txn := tm._txn:
                 txn.abort()
         else:
             logger.debug('Finished request task %s, status %s', self, status)
@@ -89,7 +88,7 @@ class ScheduleOnCommitTask(WebsaunaTask):
         request = _make_request('/', registry)
 
         # Make sure we have a transaction manager
-        request.tm = transaction.manager if not tm else tm
+        request.tm = tm or transaction.manager
 
         apply_request_extensions(request)
         return request

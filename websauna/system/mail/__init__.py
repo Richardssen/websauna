@@ -43,11 +43,11 @@ def render_templated_mail(request: Request, template: str, context: dict) -> t.T
     :return: Tuple(subject, text_body, html_body)
     """
 
-    subject = render(template + ".subject.txt", context, request=request)
+    subject = render(f"{template}.subject.txt", context, request=request)
     subject = subject.strip()
 
-    html_body = render(template + ".body.html", context, request=request)
-    text_body = render(template + ".body.txt", context, request=request)
+    html_body = render(f"{template}.body.html", context, request=request)
+    text_body = render(f"{template}.body.txt", context, request=request)
 
     # Inline CSS styles
     html_body = premailer.transform(html_body)
@@ -112,7 +112,7 @@ def send_templated_mail(request: Request, recipients: t.List, template: str, con
     assert type(recipients) != str, "Please give a list of recipients, not a string"
 
     for r in recipients:
-        assert r, "Received empty recipient when sending out email {}".format(template)
+        assert r, f"Received empty recipient when sending out email {template}"
 
     subject, text_body, html_body = render_templated_mail(request, template, context)
 
@@ -122,9 +122,9 @@ def send_templated_mail(request: Request, recipients: t.List, template: str, con
     if not sender:
         sender = request.registry.settings["mail.default_sender"]
 
-        # Add enveloped From:
-        sender_name = request.registry.settings.get("mail.default_sender_name")
-        if sender_name:
+        if sender_name := request.registry.settings.get(
+            "mail.default_sender_name"
+        ):
             sender = formataddr((str(Header(sender_name, 'utf-8')), sender))
 
     message = Message(subject=subject, sender=sender, recipients=recipients, body=text_body, html=html_body)
@@ -143,10 +143,9 @@ def send_templated_mail(request: Request, recipients: t.List, template: str, con
 
     # Don't use the default ThreadLocal transaction manager as that won't fly with Celery.
     # Note we do this only for SMTP services, not for other more archaid mail deliveries.
-    if tm:
-        if hasattr(mailer, "direct_delivery"):
-            # Not needed for dummy mailer
-            mailer.direct_delivery.transaction_manager = tm
+    if tm and hasattr(mailer, "direct_delivery"):
+        # Not needed for dummy mailer
+        mailer.direct_delivery.transaction_manager = tm
 
     if immediate is None:
         immediate = asbool(request.registry.settings.get("mail.immediate", False))

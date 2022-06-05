@@ -39,8 +39,7 @@ class DefaultOAuthLoginService:
         * Federated authentication service does HTTP GET redirect when they accept OAuth authentication request
         """
         ae = AuthomaticLoginHandler(self.request, provider_name)
-        response = ae.handle()
-        return response
+        return ae.handle()
 
 
 class AuthomaticLoginHandler:
@@ -74,10 +73,15 @@ class AuthomaticLoginHandler:
         self.social_logins = aslist(settings.get("websauna.social_logins", ""))
 
         # Allow only logins which we configured
-        assert provider_name in self.social_logins, "Attempt to login non-configured social media {}".format(provider_name)
+        assert (
+            provider_name in self.social_logins
+        ), f"Attempt to login non-configured social media {provider_name}"
+
 
         self.mapper = get_social_login_mapper(request.registry, provider_name)
-        assert self.mapper, "No social media login mapper configured for {}".format(provider_name)
+        assert (
+            self.mapper
+        ), f"No social media login mapper configured for {provider_name}"
 
     def process_form(self):
         """Process form values from the internal post request.

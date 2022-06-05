@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def _log_error_message(klass: object, engine: object, table: t.Optional[str] = None, column: t.Optional[str] = None):
     instance = 'column' if column else 'table'
-    name = column if column else table
+    name = column or table
     logger.error(
         "Model {klass} declares {instance} {name} which does not exist in database {engine}".format(
             klass=klass,

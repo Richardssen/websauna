@@ -31,14 +31,13 @@ class Resource:
 
         This is viewed in admin breadcrumbs path, etc.
         """
-        title = getattr(self, "title", None)
-        if title:
+        if title := getattr(self, "title", None):
             return title
 
-        raise NotImplementedError("get_title() implementation missing for {}".format(self))
+        raise NotImplementedError(f"get_title() implementation missing for {self}")
 
     @classmethod
-    def make_lineage(self, parent, child, name, allow_new_parent=False) -> "Resource":
+    def make_lineage(cls, parent, child, name, allow_new_parent=False) -> "Resource":
         """Set traversing pointers between the child and the parent resources.
 
         Builds __parent__ and __name__ pointer and sets it on the child resource.
@@ -64,7 +63,10 @@ class Resource:
 
         if not allow_new_parent:
             # Catch bugs when you try to double lineage a persistnet parent -> child relationship
-            assert not getattr(child, "__parent__", None), "Tried to double init lineage for {} -> {}, previous parent was {}".format(parent, child, child.__parent__)
+            assert not getattr(
+                child, "__parent__", None
+            ), f"Tried to double init lineage for {parent} -> {child}, previous parent was {child.__parent__}"
+
 
         child.__parent__ = parent
         child.__name__ = name

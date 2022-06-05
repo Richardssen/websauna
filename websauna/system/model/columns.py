@@ -21,12 +21,14 @@ class UTCDateTime(DateTime):
 
     def __init__(self, *args, **kwargs):
         # If there is an explicit timezone we accept UTC only
-        if "timezone" in kwargs:
-            if kwargs["timezone"] not in (datetime.timezone.utc, True):
-                raise ValueError(
-                    "Only 'datetime.timezone.utc' or True accepted"
-                    " as timezone for '{}'".format(self.__class__.__name__)
-                )
+        if "timezone" in kwargs and kwargs["timezone"] not in (
+            datetime.timezone.utc,
+            True,
+        ):
+            raise ValueError(
+                f"Only 'datetime.timezone.utc' or True accepted as timezone for '{self.__class__.__name__}'"
+            )
+
 
         kwargs = kwargs.copy()
         # Using an explict 'True' ensures no false positives
@@ -86,10 +88,9 @@ class UUID(UUIDType):
         if dialect.name == 'postgresql' and self.native:
             # Use the native UUID type.
             return dialect.type_descriptor(postgresql.UUID())
-        else:
-            # Fallback to either a BINARY or a CHAR.
-            kind = types.BINARY(16)
-            return dialect.type_descriptor(kind)
+        # Fallback to either a BINARY or a CHAR.
+        kind = types.BINARY(16)
+        return dialect.type_descriptor(kind)
 
 
 # Don't expose sqlalchemy_utils internals as they may go away

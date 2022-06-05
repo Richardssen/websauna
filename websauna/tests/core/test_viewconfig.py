@@ -19,8 +19,7 @@ def setup_wsgi():
     configurator.set_root_factory(testmodule.Root)
     configurator.scan(testmodule)
 
-    wsgi = App(configurator.make_wsgi_app())
-    return wsgi
+    return App(configurator.make_wsgi_app())
 
 
 def test_override_context():

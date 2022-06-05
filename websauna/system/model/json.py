@@ -20,9 +20,7 @@ from sqlalchemy_utils.types.json import JSONType
 
 
 def _default(obj):
-    if isinstance(obj, MutationDict):
-        return obj._d
-    elif isinstance(obj, MutationList):
+    if isinstance(obj, (MutationDict, MutationList)):
         return obj._d
 
 
@@ -93,12 +91,11 @@ class MutationDict(WebsaunaFriendlyMutable):
 
     @classmethod
     def coerce(cls, key, value):
-        if not isinstance(value, MutationDict):
-            if isinstance(value, dict):
-                return cls(value)
-            return Mutable.coerce(key, value)
-        else:
+        if isinstance(value, MutationDict):
             return value
+        if isinstance(value, dict):
+            return cls(value)
+        return Mutable.coerce(key, value)
 
     def __json__(self, request=None):
         return dict([(key, value.__json__(request))
@@ -115,12 +112,11 @@ class MutationList(WebsaunaFriendlyMutable):
 
     @classmethod
     def coerce(cls, key, value):
-        if not isinstance(value, MutationList):
-            if isinstance(value, list):
-                return cls(value)
-            return Mutable.coerce(key, value)
-        else:
+        if isinstance(value, MutationList):
             return value
+        if isinstance(value, list):
+            return cls(value)
+        return Mutable.coerce(key, value)
 
     def __radd__(self, other):
         return other + self._d
@@ -212,7 +208,7 @@ class NestedMixin(object):
         return self._d == other
 
     def __str__(self):
-        return "#{} {}: {}".format(id(self), self.__class__, self._d)
+        return f"#{id(self)} {self.__class__}: {self._d}"
 
     def __repr__(self):
         return self.__str__()
@@ -308,6 +304,6 @@ def init_for_json(cls):
     """Check if we need to add JSON column specific SQLAlchemy event listers for this model."""
     # import pdb ; pdb.set_trace()
     global _loaded_listener
-    has_json_columns = any([is_json_like_column(c) for c in cls.__table__.columns])
+    has_json_columns = any(is_json_like_column(c) for c in cls.__table__.columns)
     if has_json_columns:
         setup_default_value_handling(cls)

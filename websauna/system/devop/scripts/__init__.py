@@ -73,8 +73,9 @@ def usage_message(argv: t.List[str], additional_params: str = '', additional_lin
     msg = 'usage: {cmd} <config_uri> {params}\n(example: "{cmd} ws://conf/production.ini{line}")'.format(
         cmd=cmd,
         params=additional_params,
-        line='' if not additional_line else '\n{0}'.format(additional_line)
+        line='\n{0}'.format(additional_line) if additional_line else '',
     )
+
     feedback_and_exit(msg, status_code=1, display_border=False)
 
 

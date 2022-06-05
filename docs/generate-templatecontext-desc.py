@@ -111,16 +111,14 @@ env = jinja2.Environment()
 
 
 def fullname(o):
-    return o.__module__ + "." + o.__name__
+    return f"{o.__module__}.{o.__name__}"
 
 
 def strip_indent(doc):
     lines = doc.split("\n")
 
     def strip_prefix(line):
-        if line.startswith("    "):
-            return line[4:]
-        return line
+        return line[4:] if line.startswith("    ") else line
 
     return "\n".join([strip_prefix(l) for l in lines])
 
@@ -161,8 +159,7 @@ def find_vars():
 
 request = init_websauna("../websauna/conf/development.ini")
 
-modules = {}
-modules["filters"] = find_filters(request)
+modules = {"filters": find_filters(request)}
 modules["vars"] = find_vars()
 
 print(template.render(dict(modules=modules)))

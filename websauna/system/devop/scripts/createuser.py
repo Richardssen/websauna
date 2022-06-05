@@ -90,7 +90,7 @@ def main(argv: t.List[str] = sys.argv):
 
     request = init_websauna(config_uri)
     email = argv[2]
-    is_admin = True if '--admin' in argv else False
+    is_admin = '--admin' in argv
     password = argv[3] if len(argv) >= 4 and argv[3] != '--admin' else ''
 
     if not password:

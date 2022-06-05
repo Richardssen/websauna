@@ -99,9 +99,14 @@ def _get_psql_engine(settings: dict, prefix: str) -> Engine:
     :param prefix: Configuration prefixes
     :return: SQLAlchemy Engine
     """
-    # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
-    engine = engine_from_config(settings, prefix, connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer)
-    return engine
+    return engine_from_config(
+        settings,
+        prefix,
+        connect_args={"options": "-c timezone=utc"},
+        client_encoding='utf8',
+        isolation_level='SERIALIZABLE',
+        json_serializer=json_serializer,
+    )
 
 
 def get_engine(settings: dict, prefix: str = 'sqlalchemy.') -> Engine:
@@ -177,5 +182,4 @@ def create_dbsession(registry: Registry, manager: TransactionManager = None, *, 
     if isolation_level != _DEFAULT:
         engine = engine.execution_options(isolation_level=isolation_level)
 
-    dbsession = _create_session(manager, engine)
-    return dbsession
+    return _create_session(manager, engine)

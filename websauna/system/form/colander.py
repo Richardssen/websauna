@@ -160,12 +160,9 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
 
             name = node.name
             try:
-                if is_index_property(obj, name):
-                    value = getattr(obj, name)
-                else:
+                if not is_index_property(obj, name):
                     getattr(self.inspector.column_attrs, name)
-                    value = getattr(obj, name)
-
+                value = getattr(obj, name)
             except AttributeError:
 
                 try:
@@ -233,35 +230,28 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             if mapper.has_property(attr):
                 prop = mapper.get_property(attr)
 
+                value = dict_[attr]
+
                 if hasattr(prop, 'mapper'):
-                    value = dict_[attr]
-
-                    if prop.uselist:
-                        # Sequence of objects
-
-                        if isinstance(value, ModelSetResultList):
-                            # We know we do not need to try to convert these
-                            pass
-                        else:
-                            # Try to map incoming colander items back to SQL items
-                            value = [self[attr].children[0].objectify(obj)
-                                     for obj in dict_[attr]]
-                    else:
-
-                        if hasattr(value, "__tablename__"):
-                            # Raw SQLAlchemy object - do not try to convert
-                            pass
-                        else:
-                            # Single object
-                            if value:
-                                value = self[attr].objectify(value)
-                else:
-                    value = dict_[attr]
-                    if value is colander.null:
-                        # `colander.null` is never an appropriate
-                        # value to be placed on an SQLAlchemy object
-                        # so we translate it into `None`.
-                        value = None
+                    if (
+                        prop.uselist
+                        and isinstance(value, ModelSetResultList)
+                        or not prop.uselist
+                        and hasattr(value, "__tablename__")
+                    ):
+                        # We know we do not need to try to convert these
+                        pass
+                    elif prop.uselist:
+                        # Try to map incoming colander items back to SQL items
+                        value = [self[attr].children[0].objectify(obj)
+                                 for obj in dict_[attr]]
+                    elif value:
+                        value = self[attr].objectify(value)
+                elif value is colander.null:
+                    # `colander.null` is never an appropriate
+                    # value to be placed on an SQLAlchemy object
+                    # so we translate it into `None`.
+                    value = None
                 setattr(context, attr, value)
             elif hasattr(context, attr):
                 # Set any properties on the object which are not SQLAlchemy column based.
@@ -457,9 +447,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         autoincrement results in drop
         """
         if isinstance(column.default, ColumnDefault):
-            if column.default.is_callable:
-                kwargs["missing"] = drop
-            elif column.default.is_clause_element:  # SQL expression
+            if column.default.is_callable or column.default.is_clause_element:
                 kwargs["missing"] = drop
             elif column.default.is_scalar:
                 kwargs["missing"] = column.default.arg
@@ -472,7 +460,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             # it if it's missing and let the database generate it
             kwargs["missing"] = drop
 
-        kwargs.update(type_overrides_kwargs)
+        kwargs |= type_overrides_kwargs
         kwargs.update(typedecorator_overrides)
         kwargs.update(declarative_overrides)
         kwargs.update(overrides)
@@ -532,19 +520,16 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             includes = None
 
         # TODO: Utmost piece of garbage here.. remove this
-        if not self.automatic_relationships:
-            if name not in (self.includes or ()):
-                log.debug("Does not construct relationship for %s unless explicitly included", name)
-                return None
+        if not self.automatic_relationships and name not in (self.includes or ()):
+            log.debug("Does not construct relationship for %s unless explicitly included", name)
+            return None
 
         if self.relationship_overrides:
 
             result = self.relationship_overrides(self, name, prop, class_)
             if result == TypeOverridesHandling.drop:
                 return None
-            elif result == TypeOverridesHandling.unknown:
-                pass
-            else:
+            elif result != TypeOverridesHandling.unknown:
                 assert isinstance(result, colander.SchemaNode)
                 return result
 
@@ -587,15 +572,10 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             rel_overrides = None
 
         # Add default values for missing parameters.
-        if prop.innerjoin:
-            # Inner joined relationships imply it is mandatory
-            missing = required
-        else:
-            # Any other join is thus optional
-            missing = []
+        missing = required if prop.innerjoin else []
         kwargs['missing'] = missing
 
-        kwargs.update(declarative_overrides)
+        kwargs |= declarative_overrides
         kwargs.update(overrides)
 
         if children is not None:

@@ -18,7 +18,7 @@ def get_admin_for_model(admin: IAdmin, model: type) -> Resource:
     model_manager = admin["models"]
 
     if model.id not in model_manager:
-        raise KeyError("No admin defined for model: {}".format(model))
+        raise KeyError(f"No admin defined for model: {model}")
     return model_manager[model.id]
 
 
@@ -37,8 +37,7 @@ def get_admin_resource_for_sqlalchemy_object(admin: IAdmin, instance: object) ->
     :param instance: SQLAlchemy instance
     """
     admin = get_model_admin_for_sqlalchemy_object(admin, instance)
-    res = admin.wrap_to_resource(instance)
-    return res
+    return admin.wrap_to_resource(instance)
 
 
 def get_model_admin_for_sqlalchemy_object(admin: IAdmin, instance: object) -> ModelAdmin:
@@ -49,7 +48,7 @@ def get_model_admin_for_sqlalchemy_object(admin: IAdmin, instance: object) -> Mo
     model = instance.__class__
 
     model_admin_id = registry.model_admin_ids_by_model.get(model)
-    assert model_admin_id, "No ModelAdmin configured for model {}".format(model)
+    assert model_admin_id, f"No ModelAdmin configured for model {model}"
 
     return model_manager[model_admin_id]
 

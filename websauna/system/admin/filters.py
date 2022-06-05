@@ -22,7 +22,7 @@ def admin_breadcrumbs(jinja_ctx, context, **kw):
     current_view_url = request.url
     crumbs = get_breadcrumbs(context, request, root_iface=IAdmin, current_view_name=current_view_name, current_view_url=current_view_url)
 
-    assert crumbs, "Could not get breadcrumbs for {}".format(context)
+    assert crumbs, f"Could not get breadcrumbs for {context}"
 
     if len(crumbs) == 1:
         return ""

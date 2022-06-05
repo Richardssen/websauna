@@ -18,7 +18,7 @@ def test_internal_server_error(browser, request, app):
     _web_server = web_server_factory({"websauna.log_internal_server_error": False})
 
     b = browser
-    b.visit("{}/error-trigger".format(_web_server))
+    b.visit(f"{_web_server}/error-trigger")
 
     # After login we see a profile link to our profile
     assert b.is_element_visible_by_css("#it-is-broken")
@@ -28,7 +28,7 @@ def test_not_found(web_server, browser):
     """Show not found page on unknown URL."""
 
     b = browser
-    missing_url = "{}/foobar".format(web_server)
+    missing_url = f"{web_server}/foobar"
     b.visit(missing_url)
 
     assert b.is_element_visible_by_css("#not-found")
@@ -42,7 +42,7 @@ def test_forbidden(web_server, browser):
     """Access controlled page should not be available."""
 
     b = browser
-    b.visit("{}/admin/".format(web_server))
+    b.visit(f"{web_server}/admin/")
 
     assert b.is_element_visible_by_css("#forbidden")
 
@@ -51,7 +51,7 @@ def test_csrf_fail(web_server, browser):
     """Bad CSRF token shoud give us an error page."""
 
     b = browser
-    b.visit(web_server + "/login")
+    b.visit(f"{web_server}/login")
     b.fill("username", "x")
     b.fill("password", "y")
 

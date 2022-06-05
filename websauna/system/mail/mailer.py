@@ -14,7 +14,7 @@ class StdoutMailer:
     def _send(self, message, fail_silently=False):
         """Save message to a file for debugging
         """
-        print(str(message.to_message()))
+        print(message.to_message())
         self.send_count += 1
 
     send = _send

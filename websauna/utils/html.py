@@ -1,4 +1,5 @@
 """HTML manipulation helpers."""
+
 # Standard Library
 import typing as t
 
@@ -18,7 +19,7 @@ _js_escapes = {
 }
 
 # Escape every ASCII character with a value less than 32.
-_js_escapes.update((ord('%c' % z), '\\u%04X' % z) for z in range(32))
+_js_escapes |= ((ord('%c' % z), '\\u%04X' % z) for z in range(32))
 
 
 def escape_js(value: t.AnyStr) -> str:

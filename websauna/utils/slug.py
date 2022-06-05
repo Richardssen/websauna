@@ -58,8 +58,8 @@ def slug_to_uuid(slug: str) -> uuid.UUID:
     assert type(slug) == str
 
     try:
-        bytes = (slug + '==').replace('_', '/').replace("-", "+")
+        bytes = f'{slug}=='.replace('_', '/').replace("-", "+")
         bytes = base64.b64decode(bytes)
         return uuid.UUID(bytes=bytes)
     except (ValueError, binascii.Error) as e:
-        raise SlugDecodeError("Cannot decode supposed B64 slug: {}".format(slug)) from e
+        raise SlugDecodeError(f"Cannot decode supposed B64 slug: {slug}") from e

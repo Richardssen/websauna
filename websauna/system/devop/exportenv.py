@@ -49,7 +49,7 @@ def create_settings_env(registry: Registry):
     env["MAIN_SQL_PASSWORD"] = url.password or ""
 
     for key, val in settings.items():
-        key = "main.{}".format(key)
+        key = f"main.{key}"
         key = key.replace(".", "_")
         env[key.upper()] = str(val)
 

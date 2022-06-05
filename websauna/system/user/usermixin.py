@@ -106,10 +106,9 @@ class UserMixin:
 
         Picks one of 1) full name if set 2) username if set 3) email.
         """
-        full_name = self.full_name
         username = self.username
         friendly_name = self.email
-        if full_name:
+        if full_name := self.full_name:
             # Return full_name if available
             friendly_name = full_name
         elif username and not username.startswith('user-'):
@@ -135,11 +134,7 @@ class UserMixin:
         return self.enabled and self.is_activated()
 
     def is_in_group(self, name) -> bool:
-        # TODO: groups - defined in Horus
-        for g in self.groups:
-            if g.name == name:
-                return True
-        return False
+        return any(g.name == name for g in self.groups)
 
     def is_admin(self) -> bool:
         """Does this user the see the main admin interface link.

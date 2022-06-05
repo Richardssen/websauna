@@ -32,19 +32,19 @@ def internal_server_error(context, request):
     Also see https://github.com/Pylons/pyramid_tm/issues/40
     """
 
-    if HAS_NEW_PYRAMID_TM:
-        if not can_access_transaction_in_excview(context, request):
-            # Kill some of db aware properties in the case templates
-            # might accidentally touch them
-            request.__dict__["user"] = None
-
-        else:
-            # We should have db and request.user available,
-            # we have just started a new transction for this view
-            reset_transaction_aware_properties(request)
-    else:
+    if (
+        HAS_NEW_PYRAMID_TM
+        and not can_access_transaction_in_excview(context, request)
+        or not HAS_NEW_PYRAMID_TM
+    ):
+        # Kill some of db aware properties in the case templates
+        # might accidentally touch them
         request.__dict__["user"] = None
 
+    else:
+        # We should have db and request.user available,
+        # we have just started a new transction for this view
+        reset_transaction_aware_properties(request)
     # Tell Sentry handler to log this exception on sentry
     request.registry.notify(InternalServerError(context, request))
 

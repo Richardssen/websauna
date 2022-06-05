@@ -152,7 +152,7 @@ def create_psq_db(request, dbname, dsn=''):
                 conn.commit()
                 cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{dbname}'".format(dbname=dbname))
                 if cursor.fetchone()[0] == 1:
-                    cursor.execute('DROP DATABASE ' + dbname)
+                    cursor.execute(f'DROP DATABASE {dbname}')
 
     request.addfinalizer(teardown)
 
@@ -178,13 +178,11 @@ def insert_content_after_line(path: str, content: str, marker: str):
     """Add piece to text to a text file after a line having a marker string on it."""
     backup = open(path, "rt").read()
     try:
-        # Replaces stdout
-        out = open(path, 'wt')
-        for line in backup.split("\n"):
-            if marker in line:
-                print(content, file=out)
-            print(line, file=out)
-        out.close()
+        with open(path, 'wt') as out:
+            for line in backup.split("\n"):
+                if marker in line:
+                    print(content, file=out)
+                print(line, file=out)
         yield None
     finally:
         open(path, 'wt').write(backup)

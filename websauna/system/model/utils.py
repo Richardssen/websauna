@@ -73,10 +73,9 @@ def attach_model_to_base(ModelClass: type, Base: type, ignore_reattach: bool = T
     :param ignore_reattach: Do nothing if ``ModelClass`` is already attached to base. Base registry is effectively global. ``attach_model_to_base()`` may be called several times within the same process during unit tests runs. Complain only if we try to attach a different base.
     """
 
-    if ignore_reattach:
-        if '_decl_class_registry' in ModelClass.__dict__:
-            assert ModelClass._decl_class_registry == Base._decl_class_registry, "Tried to attach to a different Base"
-            return
+    if ignore_reattach and '_decl_class_registry' in ModelClass.__dict__:
+        assert ModelClass._decl_class_registry == Base._decl_class_registry, "Tried to attach to a different Base"
+        return
 
     instrument_declarative(ModelClass, Base._decl_class_registry, Base.metadata)
 

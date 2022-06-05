@@ -97,7 +97,7 @@ class ILoginService(Interface):
     Use :py:func:`websauna.system.user.utils.get_login_service` to get access to configured login service.
     """
 
-    def authentication_user(user: IUser, login_source: str, location: str = None) -> IResponse:
+    def authentication_user(self, login_source: str, location: str = None) -> IResponse:
         """Make the current session logged in session for this particular user.
 
         A password check is not performed. However it is checked if user is active and such.
@@ -107,7 +107,7 @@ class ILoginService(Interface):
         :raise AuthenticationFailure: If the user is disabled
         """
 
-    def authenticate_credentials(username: str, login_source: str, password: str, location: str = None) -> IResponse:
+    def authenticate_credentials(self, login_source: str, password: str, location: str = None) -> IResponse:
         """Logs in the user.
 
         This is called after the user credentials have been validated.
@@ -127,7 +127,7 @@ class ILoginService(Interface):
         :raise AuthenticationFailure: If the password does not match or user is disabled
         """
 
-    def logout(location: str = None) -> IResponse:
+    def logout(self) -> IResponse:
         """Log out user from the site.
 
         * Terminate session
@@ -146,7 +146,7 @@ class IOAuthLoginService(Interface):
     Use :py:func:`websauna.system.user.utils.get_oauth_login_service` to get access to configured login service.
     """
 
-    def handle_request(provider_name: str) -> IResponse:
+    def handle_request(self) -> IResponse:
         """Handle all requests coming to login/facebook, login/twitter etc. endpoints.
 
         * Login form does an empty HTTP POST request to initiate OAuth process
@@ -245,7 +245,7 @@ class IPasswordHasher(Interface):
     Used by :py:meth:`websauna.system.models.usermixin.UserMixin._set_password`.
     """
 
-    def hash_password(plain_text: str) -> str:
+    def hash_password(self) -> str:
         """Generate a hash presentation for plain text password.
 
         This is to be stored in database.
@@ -253,7 +253,7 @@ class IPasswordHasher(Interface):
         :return: A hasher internal string format. Usually contains number of cycles, hashed password and salt string.
         """
 
-    def verify_password(hashed_password: str, plain_text: str) -> bool:
+    def verify_password(self, plain_text: str) -> bool:
         """Verify a password.
 
         Compare if inputed password matches one stored in the dabase.

@@ -115,17 +115,13 @@ def init_websauna(config_uri: str, sanity_check: bool = False, console_app: bool
     """
 
     # Paster thinks we are a string
-    if sanity_check:
-        sanity_check = "true"
-    else:
-        sanity_check = "false"
-
+    sanity_check = "true" if sanity_check else "false"
     options = {
         "sanity_check": sanity_check
     }
 
     if extra_options:
-        options.update(extra_options)
+        options |= extra_options
 
     app = get_wsgi_app(config_uri, defaults=options)
     initializer = initializer_from_app(app)

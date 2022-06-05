@@ -65,7 +65,7 @@ class Loader(plaster_pastedeploy.Loader):
         :param defaults: The defaults that will be used when passed to :func:`logging.config.fileConfig`.
         :param disable_existing_loggers: Should existing loggers be disabled.
         """
-        defaults = defaults if defaults else {}
+        defaults = defaults or {}
         if 'loggers' in self.get_sections():
             uri_path = self.uri.path
             parser = self._get_parser()

@@ -134,7 +134,10 @@ def after(target_event_source: t.Callable):
     def _outer(advisor_method):
 
         wrapped = getattr(target_event_source, "__wrapped__", None)
-        assert wrapped, "The target function {} was not decorated with @event_source decorator or any other decorator".format(target_event_source)
+        assert (
+            wrapped
+        ), f"The target function {target_event_source} was not decorated with @event_source decorator or any other decorator"
+
 
         name = wrapped._event_source_name
 
@@ -153,7 +156,10 @@ def before(target_event_source: t.Callable):
     def _outer(advisor_method):
 
         wrapped = getattr(target_event_source, "__wrapped__", None)
-        assert wrapped, "The target function {} was not decorated with @event_source decorator or any other decorator".format(target_event_source)
+        assert (
+            wrapped
+        ), f"The target function {target_event_source} was not decorated with @event_source decorator or any other decorator"
+
 
         name = wrapped._event_source_name
 

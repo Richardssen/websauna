@@ -25,7 +25,9 @@ def test_view_user_details(browser, web_server, init, dbsession):
 
     b = browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     b.find_by_css("#nav-admin").click()
 
@@ -45,7 +47,9 @@ def test_add_user(browser, web_server, init, dbsession):
 
     b = browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     b.find_by_css("#nav-admin").click()
 
@@ -62,7 +66,7 @@ def test_add_user(browser, web_server, init, dbsession):
 
     logout(web_server, b)
 
-    b.visit(web_server + "/login")
+    b.visit(f"{web_server}/login")
     b.fill("username", "test2@example.com")
     b.fill("password", "secret")
     b.find_by_name("login_email").click()
@@ -75,7 +79,9 @@ def test_add_user_password_mismatch(browser, web_server, init, dbsession):
 
     b = browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     b.find_by_css("#nav-admin").click()
 
@@ -99,7 +105,9 @@ def test_add_user_existing_email(browser, web_server, init, dbsession):
 
     b = browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     b.find_by_css("#nav-admin").click()
 
@@ -118,7 +126,9 @@ def test_add_user_with_group(browser, web_server, init, dbsession):
     """Add a user and directly assign a group."""
     b = browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     b.find_by_css("#nav-admin").click()
 
@@ -152,7 +162,10 @@ def test_set_password(browser, victim_browser, web_server, init, dbsession):
     b = browser
     b2 = victim_browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
+
     create_logged_in_user(dbsession, init.config.registry, web_server, b2, email="victim@example.com", password="secret")
 
     b.find_by_css("#nav-admin").click()
@@ -171,7 +184,7 @@ def test_set_password(browser, victim_browser, web_server, init, dbsession):
     assert b2.is_element_present_by_css("#nav-sign-in")
 
     # See that we can log in with the new password
-    b2.visit(web_server + "/login")
+    b2.visit(f"{web_server}/login")
     b2.fill("username", "victim@example.com")
     b2.fill("password", "new-secret")
     b2.find_by_name("login_email").click()
@@ -185,7 +198,10 @@ def test_set_email(browser, victim_browser, web_server, init, dbsession):
     b = browser
     b2 = victim_browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
+
     create_logged_in_user(dbsession, init.config.registry, web_server, b2, email="victim@example.com", password="secret")
 
     b.find_by_css("#nav-admin").click()
@@ -203,7 +219,7 @@ def test_set_email(browser, victim_browser, web_server, init, dbsession):
     assert b2.is_element_present_by_css("#nav-sign-in")
 
     # See that we can log in with the new password
-    b2.visit(web_server + "/login")
+    b2.visit(f"{web_server}/login")
     b2.fill("username", "victim2@example.com")
     b2.fill("password", "secret")
     b2.find_by_name("login_email").click()
@@ -216,7 +232,10 @@ def test_set_enabled(browser: DriverAPI, victim_browser, web_server, init, dbses
     b = browser
     b2 = victim_browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
+
     create_logged_in_user(dbsession, init.config.registry, web_server, b2, email="victim@example.com", password="secret")
 
     b.find_by_css("#nav-admin").click()
@@ -235,7 +254,7 @@ def test_set_enabled(browser: DriverAPI, victim_browser, web_server, init, dbses
     assert b2.is_element_present_by_css("#nav-sign-in")
 
     # See that we cannot login on disabled user
-    b2.visit(web_server + "/login")
+    b2.visit(f"{web_server}/login")
     b2.fill("username", "victim@example.com")
     b2.fill("password", "secret")
     b2.find_by_name("login_email").click()
@@ -253,7 +272,7 @@ def test_set_enabled(browser: DriverAPI, victim_browser, web_server, init, dbses
     b2.visit(web_server)
     assert b2.is_element_present_by_css("#msg-session-invalidated")
 
-    b2.visit(web_server + "/login")
+    b2.visit(f"{web_server}/login")
     b2.fill("username", "victim@example.com")
     b2.fill("password", "secret")
     b2.find_by_name("login_email").click()
@@ -265,7 +284,9 @@ def test_delete_user_confirm(browser, web_server, init, dbsession):
 
     b = browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     # Create another user who we are going to delete
     with transaction.manager:
@@ -286,7 +307,9 @@ def test_delete_user_cancel(browser, web_server, init, dbsession):
 
     b = browser
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     # Create another user who we are going to delete
     with transaction.manager:
@@ -309,8 +332,7 @@ def test_csv_export_users(dbsession, registry, browser, web_server):
 
     b = browser
 
-    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
-
+    create_logged_in_user(dbsession, registry, web_server, b, admin=True)
     unicode_bomb = "toholammin kevätkylvöt"
 
     with transaction.manager:
@@ -326,7 +348,10 @@ def test_csv_export_users(dbsession, registry, browser, web_server):
 
     # Convert to plain dict
     cookies = {c["name"]: c["value"] for c in cookies}
-    resp = requests.get("{}/admin/models/user/csv-export".format(web_server), cookies=cookies)
+    resp = requests.get(
+        f"{web_server}/admin/models/user/csv-export", cookies=cookies
+    )
+
 
     assert resp.status_code == 200
     assert resp.headers["Content-Type"] == "text/csv; charset=utf-8"

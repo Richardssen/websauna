@@ -83,8 +83,7 @@ class IncludeAwareConfigParser(loadwsgi.NicerConfigParser):
                 "Could not find {include}".format(include=include_file)
             )
 
-        config_source = _resource_manager.resource_stream(req, path)
-        return config_source
+        return _resource_manager.resource_stream(req, path)
 
     def read_include(self, include_file: str, fpname: str):
         """Augment the current config entries from another INI file.
@@ -137,4 +136,4 @@ class IncludeAwareConfigParser(loadwsgi.NicerConfigParser):
 
         parser = cls()
         parser.read(global_config["__file__"])
-        return {k: v for k, v in parser.items(section)}
+        return dict(parser.items(section))

@@ -43,14 +43,13 @@ def web_server(request, permission_app):
     """Run a web server with custom permission test views enabled."""
 
     web_server_factory = customized_web_server(request, permission_app)
-    _web_server = web_server_factory()
-    return _web_server
+    return web_server_factory()
 
 
 def test_autheticated_anonymous_not_allowed(web_server, dbsession: Session, init, browser):
     """Anonymous access is not allowed to the views protected by authenticate permission."""
     b = browser
-    b.visit("{}/test_authenticated".format(web_server))
+    b.visit(f"{web_server}/test_authenticated")
     assert b.is_element_present_by_css("#forbidden")
 
 
@@ -66,5 +65,5 @@ def test_logged_in_has_authenticated_permission(web_server, dbsession: Session, 
     login(web_server, b)
 
     # Logged in user can access
-    b.visit("{}/test_authenticated".format(web_server))
+    b.visit(f"{web_server}/test_authenticated")
     assert b.is_element_present_by_css("#ok")

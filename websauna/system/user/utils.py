@@ -29,8 +29,7 @@ def get_user_class(registry: Registry) -> t.Type[IUserModel]:
     :param registry: Pyramid registry.
     :return: Class implementing IUserModel.
     """
-    user_class = registry.queryUtility(IUserModel)
-    return user_class
+    return registry.queryUtility(IUserModel)
 
 
 def get_group_class(registry: Registry) -> t.Type[IGroupModel]:
@@ -39,8 +38,7 @@ def get_group_class(registry: Registry) -> t.Type[IGroupModel]:
     :param registry: Pyramid registry.
     :return: Class implementing IGroupModel.
     """
-    group_class = registry.queryUtility(IGroupModel)
-    return group_class
+    return registry.queryUtility(IGroupModel)
 
 
 def get_activation_model(registry: Registry) -> t.Type[IActivationModel]:
@@ -49,8 +47,7 @@ def get_activation_model(registry: Registry) -> t.Type[IActivationModel]:
     :param registry: Pyramid registry.
     :return: Class implementing IActivationModel.
     """
-    activation_model = registry.queryUtility(IActivationModel)
-    return activation_model
+    return registry.queryUtility(IActivationModel)
 
 
 def get_site_creator(registry: Registry) -> ISiteCreator:
@@ -59,8 +56,7 @@ def get_site_creator(registry: Registry) -> ISiteCreator:
     :param registry: Pyramid registry.
     :return: Class implementing ISiteCreator.
     """
-    site_creator = registry.queryUtility(ISiteCreator)
-    return site_creator
+    return registry.queryUtility(ISiteCreator)
 
 
 def get_authomatic(registry: Registry) -> Authomatic:
@@ -70,8 +66,7 @@ def get_authomatic(registry: Registry) -> Authomatic:
     :param registry: Pyramid registry.
     :return: Instance of Authomatic.
     """
-    instance = registry.queryUtility(IAuthomatic)
-    return instance
+    return registry.queryUtility(IAuthomatic)
 
 
 def get_social_login_mapper(registry: Registry, provider_id: str) -> ISocialLoginMapper:

@@ -100,5 +100,4 @@ class Admin(Resource):
 
     def __getitem__(self, name):
         """Traverse to individual model admins by the model name."""
-        child = self.children[name]
-        return child
+        return self.children[name]

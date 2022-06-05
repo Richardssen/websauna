@@ -56,8 +56,7 @@ class WebsaunaLoader(BaseLoader):
         :return: Celery configuration, as a string.
         """
         value = None
-        secrets_file = settings.get('websauna.secrets_file')
-        if secrets_file:
+        if secrets_file := settings.get('websauna.secrets_file'):
             secrets = read_ini_secrets(secrets_file)
             value = secrets.get('app:main.websauna.celery_config', '')
         value = value or settings.get('websauna.celery_config')
@@ -80,8 +79,7 @@ class WebsaunaLoader(BaseLoader):
         except RuntimeError as exc:
             raise RuntimeError('Bad or missing Celery configuration in "%s": %s' % (ini_file, exc))
 
-        config = parse_celery_config(value, settings=settings)
-        return config
+        return parse_celery_config(value, settings=settings)
 
     def import_task_module(self, module):
         raise RuntimeError('Import Celery config directive is not supported. Use config.scan() to pick up tasks.')
@@ -131,7 +129,10 @@ class WebsaunaLoader(BaseLoader):
 
         # We must not have on-going transaction when worker spawns a task
         # - otherwise it means init code has left transaction open
-        ensure_transactionless("Thread local TX was ongoing when Celery fired up a new task {}: {}".format(task_id, task))
+        ensure_transactionless(
+            f"Thread local TX was ongoing when Celery fired up a new task {task_id}: {task}"
+        )
+
 
         # When using celery groups, the request is not available, we set it here.
         if not hasattr(self, 'request'):
@@ -171,7 +172,7 @@ def main(argv: t.List[str] = sys.argv):
         sys.exit("The first argument must be a configuration file")
 
     if len(argv) >= 3:
-        if not argv[2] == "--":
+        if argv[2] != "--":
             raise RuntimeError("The second argument must be -- to signal command line argument passthrough")
         celery_args = sys.argv[3:]
     else:

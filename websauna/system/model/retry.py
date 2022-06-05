@@ -41,9 +41,7 @@ def ensure_transactionless(msg=None, transaction_manager: t.Union[TransactionMan
         # but creates a new TransactionManager on initialization
         transaction_manager = transaction_manager.manager
 
-    txn = transaction_manager._txn
-
-    if txn:
+    if txn := transaction_manager._txn:
         if not msg:
             msg = "Dangling transction open in transaction.manager. You should not start new one."
 
@@ -156,12 +154,7 @@ def retryable(tm: t.Optional[TransactionManager] = None, get_tm: t.Optional[t.Ca
 
             global _retry_count
 
-            if get_tm:
-                manager = get_tm(*args, **kwargs)
-            else:
-                # Get how many attempts we want to do
-                manager = tm
-
+            manager = get_tm(*args, **kwargs) if get_tm else tm
             assert manager, "No transaction manager available for retry"
 
             # Make sure we don't re-enter to transaction
@@ -187,7 +180,10 @@ def retryable(tm: t.Optional[TransactionManager] = None, get_tm: t.Optional[t.Ca
                         txn.commit()
                     except ValueError as ve:
                         # Means there was a nested transaction begin
-                        raise TooDeepInTransactions("Looks like transaction.commit() failed - usually this means that the wrapped function {} begun its own transaction and ruined transaction state management".format(func)) from ve
+                        raise TooDeepInTransactions(
+                            f"Looks like transaction.commit() failed - usually this means that the wrapped function {func} begun its own transaction and ruined transaction state management"
+                        ) from ve
+
 
                     return val
                 except Exception as e:
@@ -198,7 +194,9 @@ def retryable(tm: t.Optional[TransactionManager] = None, get_tm: t.Optional[t.Ca
                         txn.abort()  # We could not commit
                         raise e
 
-            raise CannotRetryAnymore("Out of transaction retry attempts, tried {} times".format(num + 1)) from latest_exc
+            raise CannotRetryAnymore(
+                f"Out of transaction retry attempts, tried {num + 1} times"
+            ) from latest_exc
 
         return decorated_func
 

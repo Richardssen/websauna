@@ -49,9 +49,7 @@ class ModelAdmin(CRUD):
         return self.__parent__.__parent__
 
     def get_title(self) -> str:
-        if self.title:
-            return self.title
-        return self.id.capitalize()
+        return self.title or self.id.capitalize()
 
 
 class ModelAdminRoot(Resource):
@@ -71,15 +69,14 @@ class ModelAdminRoot(Resource):
         :yield: (model_id, IModelAdmin) tuples
         """
 
-        for model_id, model_cls in self.request.registry.getAdapters([self.request], IModelAdmin):
-            yield(model_id, model_cls)
+        yield from self.request.registry.getAdapters([self.request], IModelAdmin)
 
     def __getitem__(self, item):
         """Traverse to model admins. """
         registry = self.request.registry
         model_admin_resource = registry.queryAdapter(self.request, IModelAdmin, name=item)
         if not model_admin_resource:
-            raise RuntimeError("Did not find model admin with id: {}".format(item))
+            raise RuntimeError(f"Did not find model admin with id: {item}")
 
         Resource.make_lineage(self, model_admin_resource, item)
         return model_admin_resource
@@ -111,7 +108,7 @@ def model_admin(traverse_id: str) -> type:
             # We can look up midels by
 
             model = getattr(cls, "model", None)
-            assert model, "Class {} must declare model attribute".format(cls)
+            assert model, f"Class {cls} must declare model attribute"
 
             registry = config.registry
 

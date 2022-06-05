@@ -37,17 +37,18 @@ def get_logging_user_context(request: Request) -> dict:
                 # Add additional user context to the logged exception
                 username = getattr(user, "friendly_name", None) or getattr(user, "username", None) or str(user)
                 email = getattr(user, "email", None)
-                user_context.update(dict(user=username, email=email))
+                user_context |= dict(user=username, email=email)
             else:
-                user_context.update(dict(detached=True))
+                user_context |= dict(detached=True)
 
-        # All the session data as JSON
-        session = getattr(request, "session", None)
-        if session:
+        if session := getattr(request, "session", None):
             session = dict(session.items())
-            user_context.update(dict(session=session))
+            user_context |= dict(session=session)
         else:
-            user_context.update(dict(session="No session data available in internal_server_error()"))
+            user_context |= dict(
+                session="No session data available in internal_server_error()"
+            )
+
 
         user_context["ip"] = request.client_addr
 

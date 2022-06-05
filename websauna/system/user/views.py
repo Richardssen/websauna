@@ -107,40 +107,38 @@ def login(request: Request) -> [HTTPFound, dict]:
 
     social_logins = aslist(settings.get("websauna.social_logins", ""))
 
-    # Process form
-    if request.method == "POST":
-        try:
-            controls = request.POST.items()
-            captured = form.validate(controls)
-        except deform.ValidationFailure as e:
-            return {
-                'form': e.render(),
-                'errors': e.error.children
-            }
-
-        username = captured['username']
-        password = captured['password']
-        login_service = get_login_service(request)
-
-        try:
-            return login_service.authenticate_credentials(username, password, login_source="login_form")
-        except AuthenticationFailure as e:
-            # Tell user they cannot login at the moment
-            messages.add(request, msg=str(e), msg_id="msg-authentication-failure", kind="error")
-
-            return {
-                'form': form.render(appstruct=captured),
-                'errors': [e],
-                "social_logins": social_logins
-            }
-    else:
+    if request.method != "POST":
         # HTTP get, display login form
-        if request.user:
-            # Already logged in
-            return HTTPFound(location=login_redirect_view)
+        return (
+            HTTPFound(location=login_redirect_view)
+            if request.user
+            else {'form': form.render(), "social_logins": social_logins}
+        )
 
-        # Display login form
-        return {'form': form.render(), "social_logins": social_logins}
+    try:
+        controls = request.POST.items()
+        captured = form.validate(controls)
+    except deform.ValidationFailure as e:
+        return {
+            'form': e.render(),
+            'errors': e.error.children
+        }
+
+    username = captured['username']
+    password = captured['password']
+    login_service = get_login_service(request)
+
+    try:
+        return login_service.authenticate_credentials(username, password, login_source="login_form")
+    except AuthenticationFailure as e:
+        # Tell user they cannot login at the moment
+        messages.add(request, msg=str(e), msg_id="msg-authentication-failure", kind="error")
+
+        return {
+            'form': form.render(appstruct=captured),
+            'errors': [e],
+            "social_logins": social_logins
+        }
 
 
 @view_config(route_name='registration_complete', renderer='login/registration_complete.html')
@@ -174,7 +172,7 @@ def login_social(request: Request) -> dict:
     # Get the internal provider name URL variable.
     provider_name = request.matchdict.get('provider_name')
     oauth_login_service = get_oauth_login_service(request)
-    assert oauth_login_service, "OAuth not configured for {}".format(provider_name)
+    assert oauth_login_service, f"OAuth not configured for {provider_name}"
     return oauth_login_service.handle_request(provider_name)
 
 

@@ -41,8 +41,7 @@ class Resource(_Resource):
         assert hasattr(self, "__parent__"), "get_path() can be called only for objects whose lineage is set by make_lineage()"
 
         crud = self.__parent__
-        path = crud.mapper.get_path_from_object(self.obj)
-        return path
+        return crud.mapper.get_path_from_object(self.obj)
 
     def get_model(self) -> type:
         """Get the model class represented by this resource."""

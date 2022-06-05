@@ -50,7 +50,7 @@ def test_logout(web_server, browser, dbsession, init):
         create_user(dbsession, init.config.registry)
 
     b = browser
-    b.visit("{}/{}".format(web_server, "login"))
+    b.visit(f"{web_server}/login")
 
     assert b.is_element_present_by_css("#login-form")
 
@@ -121,7 +121,7 @@ def test_forget_password(web_server, browser, dbsession, init):
         user = get_user(dbsession)
         activation_code = user.activation.code
 
-    b.visit("{}/reset-password/{}".format(web_server, activation_code))
+    b.visit(f"{web_server}/reset-password/{activation_code}")
     assert b.is_element_present_by_css("#reset-password-form")
 
     # Friendly name should be visible
@@ -146,7 +146,7 @@ def test_forget_password_bad_user(web_server, browser, dbsession, init):
         create_user(dbsession, init.config.registry)
 
     b = browser
-    b.visit(web_server + "/login")
+    b.visit(f"{web_server}/login")
 
     assert b.is_element_present_by_css("#login-form")
 
@@ -166,7 +166,7 @@ def test_forget_password_disabled_user(web_server, browser, dbsession, init):
         u.enabled = False
 
     b = browser
-    b.visit(web_server + "/login")
+    b.visit(f"{web_server}/login")
 
     assert b.is_element_present_by_css("#login-form")
 
@@ -181,7 +181,7 @@ def test_forget_password_disabled_user(web_server, browser, dbsession, init):
 def test_bad_forget_password_activation_code(web_server, browser, dbsession):
     """Reset password by email."""
     b = browser
-    b.visit("{}/reset-password/xxxx".format(web_server))
+    b.visit(f"{web_server}/reset-password/xxxx")
 
     # Check we get the pimped up not found page
     assert b.is_element_present_by_css("#not-found")
@@ -205,7 +205,7 @@ def test_login_forget_password_email_send(web_server, browser, dbsession, init):
     b.fill("email", EMAIL)
     b.find_by_name("submit").click()
 
-    b.visit("{}/login".format(web_server))
+    b.visit(f"{web_server}/login")
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
@@ -220,7 +220,7 @@ def test_forget_password_expired_token(web_server, browser, dbsession, init):
         create_user(dbsession, init.config.registry)
 
     b = browser
-    b.visit(web_server + "/forgot-password")
+    b.visit(f"{web_server}/forgot-password")
 
     assert b.is_element_present_by_css("#forgot-password-form")
     b.fill("email", EMAIL)
@@ -234,7 +234,7 @@ def test_forget_password_expired_token(web_server, browser, dbsession, init):
         activation.expires_at = now() - timedelta(days=365)
         activation_code = activation.code
 
-    b.visit("{}/reset-password/{}".format(web_server, activation_code))
+    b.visit(f"{web_server}/reset-password/{activation_code}")
     assert b.is_element_present_by_css("#not-found")
 
 

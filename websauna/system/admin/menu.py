@@ -92,9 +92,8 @@ class Entry:
         """Return True if this entry is visible."""
 
         # Is this a submenu without entries
-        if self.submenu:
-            if not self.submenu.has_items(request):
-                return False
+        if self.submenu and not self.submenu.has_items(request):
+            return False
 
         # The condition for this entry valuates to False
         if self.condition is not None:

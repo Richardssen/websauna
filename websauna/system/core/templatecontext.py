@@ -74,13 +74,10 @@ def admin_url(jinja_ctx, model_instance, *elements, **kw):
     if not request:
         raise RuntimeError("Not rendered with request")
 
-    if elements:
-        view_name = elements[0]
-    else:
-        view_name = None
-
-    link = get_admin_url_for_sqlalchemy_object(request.admin, model_instance, view_name=view_name)
-    return link
+    view_name = elements[0] if elements else None
+    return get_admin_url_for_sqlalchemy_object(
+        request.admin, model_instance, view_name=view_name
+    )
 
 
 @contextfilter
@@ -92,11 +89,7 @@ def filter_datetime(jinja_ctx, context, **kw):
         return ""
 
     tz = kw.get("timezone", None)
-    if tz:
-        tz = timezone(tz)
-    else:
-        tz = datetime.timezone.utc
-
+    tz = timezone(tz) if tz else datetime.timezone.utc
     locale = kw.get("locale", "en_US")
 
     arrow = Arrow.fromdatetime(now, tzinfo=tz)
@@ -113,7 +106,7 @@ def filter_datetime(jinja_ctx, context, **kw):
     text = arrow.format(format, locale=locale)
 
     if kw.get("show_timezone"):
-        text = text + " ({})".format(tz)
+        text = text + f" ({tz})"
 
     return text
 
@@ -136,8 +129,11 @@ def arrow_format(jinja_ctx, context, *args, **kw):
 
     `See Arrow formatting <http://crsmithdev.com/arrow/>`__.
     """
-    assert len(args) == 1, "We take exactly one formatter argument, got {}".format(args)
-    assert isinstance(context, (datetime.datetime, datetime.time)), "Got context {}".format(context)
+    assert len(args) == 1, f"We take exactly one formatter argument, got {args}"
+    assert isinstance(
+        context, (datetime.datetime, datetime.time)
+    ), f"Got context {context}"
+
     a = arrow.get(context)
     return a.format(fmt=args[0])
 
@@ -155,11 +151,7 @@ def friendly_time(jinja_ctx, context, **kw):
         return ""
 
     tz = kw.get("source_timezone", None)
-    if tz:
-        tz = timezone(tz)
-    else:
-        tz = datetime.timezone.utc
-
+    tz = timezone(tz) if tz else datetime.timezone.utc
     # Make relative time between two timestamps
     now = now.astimezone(tz)
     arrow = Arrow.fromdatetime(now)
@@ -170,8 +162,7 @@ def friendly_time(jinja_ctx, context, **kw):
 @contextfilter
 def escape_js(jinja_ctx, context, **kw):
     """Make JSON strings to safe to be embedded inside <script> tag."""
-    markup = Markup(html.escape_js(context))
-    return markup
+    return Markup(html.escape_js(context))
 
 
 @contextfilter
@@ -199,10 +190,7 @@ def to_json(jinja_ctx, context, safe=True):
     :return: JSON string to be included inside HTML code
     """
     json_ = json.dumps(context)
-    if safe:
-        return escape_js(jinja_ctx, json_)
-    else:
-        return json_
+    return escape_js(jinja_ctx, json_) if safe else json_
 
 
 @contextfilter
@@ -284,8 +272,7 @@ def from_timestamp(jinja_ctx, context, **kw):
 
     # From string to object
     tz = timezone(tz)
-    ct = datetime.datetime.fromtimestamp(context, tz=tz)
-    return ct
+    return datetime.datetime.fromtimestamp(context, tz=tz)
 
 
 def include_filter(config: Configurator, name: str, func: t.Callable, renderers=(".html", ".txt",)):
