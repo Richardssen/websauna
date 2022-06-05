@@ -41,7 +41,7 @@ def test_register_email(web_server, browser, dbsession):
     user = get_user(dbsession)
     assert user.activation.code
 
-    activation_link = "{}/activate/{}".format(web_server, user.activation.code)
+    activation_link = f"{web_server}/activate/{user.activation.code}"
 
     b.visit(activation_link)
 
@@ -60,7 +60,7 @@ def test_register_email_activation_expired(web_server, browser, dbsession):
 
     b = browser
 
-    b.visit(web_server + "/register")
+    b.visit(f"{web_server}/register")
     assert b.is_element_visible_by_css("#sign-up-form")
 
     b.fill("email", EMAIL)
@@ -77,12 +77,12 @@ def test_register_email_activation_expired(web_server, browser, dbsession):
         a.expires_at = now() - timedelta(days=365)
         activation_code = a.code
 
-    activation_link = "{}/activate/{}".format(web_server, activation_code)
+    activation_link = f"{web_server}/activate/{activation_code}"
     b.visit(activation_link)
 
     assert b.is_element_present_by_css("#not-found")
 
-    b.visit(web_server + "/login")
+    b.visit(f"{web_server}/login")
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
     b.find_by_name("login_email").click()
@@ -91,7 +91,7 @@ def test_register_email_activation_expired(web_server, browser, dbsession):
     assert b.is_element_present_by_css("#msg-authentication-failure")
 
     # Reset password
-    b.visit(web_server + "/forgot-password")
+    b.visit(f"{web_server}/forgot-password")
     assert b.is_element_present_by_css("#forgot-password-form")
     b.fill("email", EMAIL)
     b.find_by_name("submit").click()
@@ -103,7 +103,7 @@ def test_register_email_activation_expired(web_server, browser, dbsession):
         activation = user.activation
         activation_code = activation.code
 
-    b.visit("{}/reset-password/{}".format(web_server, activation_code))
+    b.visit(f"{web_server}/reset-password/{activation_code}")
 
     b.fill("password", "yyy")
     b.fill("password-confirm", "yyy")

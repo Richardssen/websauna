@@ -35,7 +35,7 @@ def get_migration_table_name(allowed_packages: t.List, current_package_name) -> 
         package_name = current_package_name
 
     table = package_name.replace(".", "_").lower()
-    return "alembic_history_{}".format(table)
+    return f"alembic_history_{table}"
 
 
 def get_class_by_table(table: Table) -> type:
@@ -48,9 +48,8 @@ def get_class_by_table(table: Table) -> type:
         model_table = getattr(c, "__table__", None)
 
         # We need to compare by names, because drop declarations use different table objects and eq comparison fails
-        if model_table is not None:
-            if model_table.name == table.name:
-                return c
+        if model_table is not None and model_table.name == table.name:
+            return c
 
     return None
 
@@ -226,7 +225,10 @@ def run_alembic(package: str):
             table_name = object.name
             table = object
         else:
-            raise RuntimeError("Don't know how to check type for migration inclusion list: {}".format(type_))
+            raise RuntimeError(
+                f"Don't know how to check type for migration inclusion list: {type_}"
+            )
+
 
         model = get_class_by_table(table)
         if not model:

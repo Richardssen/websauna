@@ -21,7 +21,7 @@ def view_callable(request):
     renderer='json')
 def my_view(request):
     arg = request.matchdict["arg"]
-    return {'message': 'Hello {}'.format(arg)}
+    return {'message': f'Hello {arg}'}
 
 
 # More than one decorator can be stacked on top of any number of others. Each

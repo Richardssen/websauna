@@ -143,17 +143,16 @@ def js_in_head(request, registry, settings):
 
     """
     on_demand_resource_renderer = getattr(request, "on_demand_resource_renderer", None)
-    if on_demand_resource_renderer and on_demand_resource_renderer.is_js_in_head(request):
-        return True
-    else:
-        return False
+    return bool(
+        on_demand_resource_renderer
+        and on_demand_resource_renderer.is_js_in_head(request)
+    )
 
 
 @var("on_demand_resource_renderer")
 def on_demand_resource_renderer(request, registry, settings):
     """Active instance of :py:class:`websauna.system.core.render.OnDemandResourceRenderer` managing dynamic CSS and JS. May be None."""
-    on_demand_resource_renderer = getattr(request, "on_demand_resource_renderer", None)
-    return on_demand_resource_renderer
+    return getattr(request, "on_demand_resource_renderer", None)
 
 
 @var("now")

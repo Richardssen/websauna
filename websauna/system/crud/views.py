@@ -79,13 +79,16 @@ class ResourceButton:
         :returns: Boolean indicating if button is visible or not.
         """
         visible = True
-        if self.permission is not None:
-            if not request.has_permission(self.permission, context):
-                visible = False
+        if self.permission is not None and not request.has_permission(
+            self.permission, context
+        ):
+            visible = False
 
-        if self.feature is not None:
-            if self.feature not in request.registry.features:
-                visible = False
+        if (
+            self.feature is not None
+            and self.feature not in request.registry.features
+        ):
+            visible = False
 
         return visible
 
@@ -196,7 +199,7 @@ class Listing(CRUDView):
 
     def get_title(self) -> str:
         """Get the user-readable name of the listing view (breadcrumbs, etc.)"""
-        return "All {}".format(self.get_crud().plural_name)
+        return f"All {self.get_crud().plural_name}"
 
     def paginate(self, template_context):
         """Create template variables for paginatoin results."""
@@ -219,11 +222,14 @@ class Listing(CRUDView):
         # Some pre-render sanity checks
 
         if not columns:
-            raise RuntimeError("CRUD listing doesn't not define any columns: {}".format(self.context))
+            raise RuntimeError(
+                f"CRUD listing doesn't not define any columns: {self.context}"
+            )
+
 
         for c in columns:
             if not c.header_template:
-                raise RuntimeError("header_template missing for column: {}".format(c))
+                raise RuntimeError(f"header_template missing for column: {c}")
 
         query = self.get_query()
         query = self.order_query(query)
@@ -300,8 +306,7 @@ class CSVListing(Listing):
             writer.writerow([c.id for c in columns])
 
             # Write each listing item
-            for idx, model_instance in enumerate(query):
-
+            for model_instance in query:
                 # Extract column values for this row
                 values = [c.get_value(view, model_instance) for c in columns]
 
@@ -345,7 +350,10 @@ class FormView(CRUDView):
 
     def create_form(self, mode: EditMode, buttons=(), nested=None) -> deform.Form:
         model = self.get_model()
-        assert getattr(self, "form_generator", None), "Class {} must define a form_generator".format(self)
+        assert getattr(
+            self, "form_generator", None
+        ), f"Class {self} must define a form_generator"
+
         return self.form_generator.generate_form(request=self.request, context=self.context, model=model, mode=mode, buttons=buttons)
 
     @abstractmethod
@@ -369,7 +377,7 @@ class FormView(CRUDView):
 
     def get_title(self):
         """Get human-readable title for for template page title."""
-        return "#{}".format(self.get_object().id)
+        return f"#{self.get_object().id}"
 
     def pull_in_widget_resources(self, form: deform.Form):
         """Include widget JS and CSS on the page.
@@ -437,7 +445,7 @@ class Edit(FormView):
     resource_buttons = [TraverseLinkButton(id="show", name="Show", view_name="show", permission="view")]
 
     def get_title(self):
-        return "Editing #{}".format(self.context.get_title())
+        return f"Editing #{self.context.get_title()}"
 
     def get_buttons(self) -> t.Iterable[deform.form.Button]:
         return (
@@ -521,7 +529,7 @@ class Add(FormView):
     """Create a new item in CRUD."""
 
     def get_title(self):
-        return "Add new {}".format(self.get_crud().singular_name)
+        return f"Add new {self.get_crud().singular_name}"
 
     def get_form(self) -> object:
         return self.create_form(EditMode.add, buttons=self.get_buttons())
@@ -579,11 +587,7 @@ class Add(FormView):
         return obj
 
     def get_buttons(self) -> t.List[deform.form.Button]:
-        buttons = (
-            deform.form.Button("add"),
-            deform.form.Button("cancel"),
-        )
-        return buttons
+        return deform.form.Button("add"), deform.form.Button("cancel")
 
     @view_config(context=CRUD, name="add", renderer="crud/add.html", permission='add')
     def add(self):
@@ -668,7 +672,13 @@ class Delete:
         else:
             self.get_crud().delete_object(self.get_object())
 
-        messages.add(self.request, "Deleted {}".format(self.context.get_title()), msg_id="msg-item-deleted", kind="success")
+        messages.add(
+            self.request,
+            f"Deleted {self.context.get_title()}",
+            msg_id="msg-item-deleted",
+            kind="success",
+        )
+
 
         return HTTPFound(self.request.resource_url(self.get_crud(), "listing"))
 

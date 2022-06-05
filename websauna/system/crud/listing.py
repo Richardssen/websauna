@@ -70,11 +70,7 @@ class Column:
         :param view: View class calling us
         :param obj: The object the list is iterating. Usually an SQLAlchemy model instance.
         """
-        if self.getter:
-            val = self.getter(view, self, obj)
-        else:
-            val = getattr(obj, self.id)
-
+        val = self.getter(view, self, obj) if self.getter else getattr(obj, self.id)
         if val is None:
             val = ''
         return val

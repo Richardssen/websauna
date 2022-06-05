@@ -31,6 +31,8 @@ def gen_test_model():
 
     Base = declarative_base()
 
+
+
     class SaneTestModel(Base):
         """A sample SQLAlchemy model to demostrate db conflicts. """
 
@@ -40,7 +42,8 @@ def gen_test_model():
         id = Column(Integer, primary_key=True)
 
         #: Add column property
-        prefix_id = column_property("model-" + id)
+        prefix_id = column_property(f"model-{id}")
+
 
     return Base, SaneTestModel
 

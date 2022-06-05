@@ -20,7 +20,9 @@ def test_add_group(web_server, browser, dbsession, init):
     """Create a new group through admin interface."""
 
     b = browser
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     b.find_by_css("#nav-admin").click()
 
@@ -32,7 +34,7 @@ def test_add_group(web_server, browser, dbsession, init):
     assert b.is_text_present("Item added")
 
     # Check name uniqueness
-    b.visit("{}/admin/models/group/add".format(web_server))
+    b.visit(f"{web_server}/admin/models/group/add")
     b.fill("name", GROUP_NAME)
     b.fill("description", "Foobar")
     b.find_by_name("add").click()
@@ -40,7 +42,7 @@ def test_add_group(web_server, browser, dbsession, init):
     assert b.is_text_present("Group with this `name` already exists")
 
     # Check we appear in the list
-    b.visit("{}/admin/models/group/listing".format(web_server))
+    b.visit(f"{web_server}/admin/models/group/listing")
 
     # The description appears in the listing
     assert b.is_text_present("Foobar")
@@ -50,10 +52,12 @@ def test_edit_group(web_server, browser, dbsession, init):
     """Edit existen group through admin interface."""
 
     b = browser
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
-    GROUP_NAME2 = GROUP_NAME + "2"
-    GROUP_NAME3 = GROUP_NAME + "3"
+    GROUP_NAME2 = f"{GROUP_NAME}2"
+    GROUP_NAME3 = f"{GROUP_NAME}3"
 
     # Create two groups with difference names
     with transaction.manager:
@@ -80,7 +84,7 @@ def test_edit_group(web_server, browser, dbsession, init):
     b.find_by_name("save").click()
     assert b.is_text_present("Changes saved")
     # Check we appear in the list
-    b.visit("{}/admin/models/group/listing".format(web_server))
+    b.visit(f"{web_server}/admin/models/group/listing")
 
     # The new name appears in the listing
     assert b.is_text_present(GROUP_NAME3)
@@ -93,7 +97,9 @@ def test_put_user_to_group(web_server, browser, dbsession, init):
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     # Create a group where we
     with transaction.manager:
@@ -107,7 +113,7 @@ def test_put_user_to_group(web_server, browser, dbsession, init):
     b.find_by_css(".crud-row-1 .btn-crud-listing-edit").click()
 
     # Check the group checkbox. We could put some more specific classes for controls here.
-    b.find_by_css("input[type='checkbox'][value='{}']".format(group_uuid)).click()
+    b.find_by_css(f"input[type='checkbox'][value='{group_uuid}']").click()
     b.find_by_name("save").click()
 
     assert b.is_text_present("Changes saved")
@@ -127,7 +133,9 @@ def test_user_group_choices_preserved_on_validation_error(web_server, init, brow
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     # Create a group where we
     with transaction.manager:
@@ -143,7 +151,10 @@ def test_user_group_choices_preserved_on_validation_error(web_server, init, brow
     b.find_by_css(".crud-row-1 .btn-crud-listing-edit").click()
 
     # We are in group 2 initially, assert checkbox is checked
-    assert b.find_by_css("input[type='checkbox'][value='{}'][checked='True']".format(group_uuid))
+    assert b.find_by_css(
+        f"input[type='checkbox'][value='{group_uuid}'][checked='True']"
+    )
+
 
     # Do validation error by leaving username empty
     b.fill("username", "")
@@ -153,7 +164,9 @@ def test_user_group_choices_preserved_on_validation_error(web_server, init, brow
     # Both group checkboxes should be still selected
     with transaction.manager:
         for g in dbsession.query(Group).all():
-            assert b.find_by_css("input[type='checkbox'][value='{}'][checked='True']".format(uuid_to_slug(g.uuid)))
+            assert b.find_by_css(
+                f"input[type='checkbox'][value='{uuid_to_slug(g.uuid)}'][checked='True']"
+            )
 
 
 def test_remove_user_from_group(web_server, init, browser, dbsession):
@@ -163,7 +176,9 @@ def test_remove_user_from_group(web_server, init, browser, dbsession):
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(
+        dbsession, init.config.registry, web_server, b, admin=True
+    )
 
     # Create a group where we
     with transaction.manager:
@@ -179,7 +194,7 @@ def test_remove_user_from_group(web_server, init, browser, dbsession):
     b.find_by_css(".crud-row-1 .btn-crud-listing-edit").click()
 
     # Check the group checkbox. We could put some more specific classes for controls here.
-    b.find_by_css("input[type='checkbox'][value='{}']".format(group_uuid)).click()
+    b.find_by_css(f"input[type='checkbox'][value='{group_uuid}']").click()
     b.find_by_name("save").click()
 
     assert b.is_text_present("Changes saved")

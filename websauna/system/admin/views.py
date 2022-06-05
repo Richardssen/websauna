@@ -63,7 +63,7 @@ class Listing(crud_views.Listing):
 
     @property
     def title(self):
-        return "All {}".format(self.context.title)
+        return f"All {self.context.title}"
 
     @view_config(context=ModelAdmin, name="listing", renderer="crud/listing.html", route_name="admin", permission='view')
     def listing(self):

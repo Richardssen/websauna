@@ -158,4 +158,6 @@ def objectify(schema: colander.Schema, appstruct: dict, context: object, exclude
         try:
             setattr(context, name, appstruct[name])
         except AttributeError as e:
-            raise AttributeError("Could not set attr {} on {} from schema {}".format(name, context, schema)) from e
+            raise AttributeError(
+                f"Could not set attr {name} on {context} from schema {schema}"
+            ) from e

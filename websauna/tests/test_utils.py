@@ -90,7 +90,7 @@ def create_logged_in_user(dbsession: Session, registry: Registry, web_server: st
         create_user(dbsession, registry, admin=admin, email=email, password=password)
 
     b = browser
-    b.visit("{}/{}".format(web_server, "login"))
+    b.visit(f"{web_server}/login")
 
     assert b.is_element_present_by_css("#login-form")
 

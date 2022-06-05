@@ -114,16 +114,14 @@ def outindent(jinja_ctx, context: str, **kw):
 
     # YAML parsers exposes lists as is
     if isinstance(context, CommentedSeq):
-        result = ""
-        for item in context:
-            result += " - " + str(item) + "\n"
+        result = "".join(f" - {str(item)}" + "\n" for item in context)
         context = result
 
     if type(context) != str:
-        context = str(context)
+        context = context
 
     lines = context.split("\n")
-    new_lines = ["    " + line for line in lines]
+    new_lines = [f"    {line}" for line in lines]
     return "\n".join(new_lines)
 
 
@@ -137,9 +135,7 @@ def strip_indent(doc):
     lines = doc.split("\n")
 
     def strip_prefix(line):
-        if line.startswith("    "):
-            return line[4:]
-        return line
+        return line[4:] if line.startswith("    ") else line
 
     return "\n".join([strip_prefix(l) for l in lines])
 
@@ -193,26 +189,26 @@ def find_yaml_commented_vars(playbook_file: str):
         data = ruamel.yaml.load(inp, ruamel.yaml.RoundTripLoader)
         for key, value in data.items():
 
-            comment_data = data.ca._items.get(key)
-
-            if comment_data:
+            if comment_data := data.ca._items.get(key):
                 # [None, seq of comment tokens]
                 comment = flatten_comment(comment_data[1])
             else:
                 comment = ""
 
-            if not comment:
-                if key != "config_description":
-                    print("No description provided for a variable {} in {}".format(key, playbook_file), file=sys.stderr)
-                    comment = "No description provided at the moment."
+            if not comment and key != "config_description":
+                print(
+                    f"No description provided for a variable {key} in {playbook_file}",
+                    file=sys.stderr,
+                )
+
+                comment = "No description provided at the moment."
 
             vars[key] = {"comment": comment, "value": value}
 
     if 'config_description' not in vars:
         print("Playbook doesn't provide config_description ", playbook_file, file=sys.stderr)
 
-    config_description = vars.pop("config_description", None)
-    if config_description:
+    if config_description := vars.pop("config_description", None):
         description = config_description["value"]
     else:
         description = "No description"

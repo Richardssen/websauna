@@ -37,13 +37,13 @@ def celery_worker(request, task_ini_file, watcher_getter):
     # Uncomment this and run ws-celery from command line for debug
     # ws-celery ws://websauna/tests/task/task-test.ini -- worker --loglevel=debug
     # return
-    ini_file = "ws://{}".format(task_ini_file)
+    ini_file = f"ws://{task_ini_file}"
     pid_file = "/tmp/celery.pid"
     # logger.info("Running celery worker: %s", cmdline)
 
     return watcher_getter(
         name='ws-celery',
-        arguments=[ini_file, '--', 'worker', '--pidfile={}'.format(pid_file)],
+        arguments=[ini_file, '--', 'worker', f'--pidfile={pid_file}'],
         checker=lambda: os.path.exists(pid_file),
         request=request,
     )

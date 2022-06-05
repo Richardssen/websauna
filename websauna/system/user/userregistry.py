@@ -225,13 +225,12 @@ class DefaultEmailBasedUserRegistry:
         :param token: Reset password token to be used to return the user.
         :return: User instance of none if token is not found.
         """
-        activation = self.dbsession.query(self.Activation).filter(self.Activation.code == token).first()
-
-        if activation:
-            if activation.is_expired():
-                return None
-            user = self.get_by_activation(activation)
-            return user
+        if (
+            activation := self.dbsession.query(self.Activation)
+            .filter(self.Activation.code == token)
+            .first()
+        ):
+            return None if activation.is_expired() else self.get_by_activation(activation)
         return None
 
     def activate_user_by_email_token(self, token: str) -> t.Optional[UserMixin]:
@@ -242,9 +241,11 @@ class DefaultEmailBasedUserRegistry:
         :param token: Password token to be used to return the user.
         :return: User instance of none if token is not found.
         """
-        activation = self.dbsession.query(self.Activation).filter(self.Activation.code == token).first()
-
-        if activation:
+        if (
+            activation := self.dbsession.query(self.Activation)
+            .filter(self.Activation.code == token)
+            .first()
+        ):
             if activation.is_expired():
                 return None
 

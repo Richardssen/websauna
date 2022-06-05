@@ -34,7 +34,7 @@ class ParentView:
 
     @view_config(name="edit", context=ParentResource)
     def traversing_test(self):
-        return HTTPOk("Editing: {}".format(self.context.id))
+        return HTTPOk(f"Editing: {self.context.id}")
 
 
 @view_overrides(context=ChildResource)
@@ -57,7 +57,7 @@ class ChildViewWithOtherViewConfigs(ParentView):
 
     @view_config(name="show", context=ChildResource2)
     def traversing_test(self):
-        return HTTPOk("Showing: {}".format(self.context.id))
+        return HTTPOk(f"Showing: {self.context.id}")
 
 
 class Root:

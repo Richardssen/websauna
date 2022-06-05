@@ -21,10 +21,16 @@ def parse_celery_config(celery_config_python: str, *, settings) -> dict:
     try:
         config_dict = eval(code, _globals, _locals)
     except Exception as e:
-        raise RuntimeError("Could not execute Python code to produce Celery configuration object: {}".format(code)) from e
+        raise RuntimeError(
+            f"Could not execute Python code to produce Celery configuration object: {code}"
+        ) from e
+
 
     if "broker_url" not in config_dict:
-        raise RuntimeError("Mandatory broker_url Celery setting missing. Did we fail to parse config? {}".format(config_dict))
+        raise RuntimeError(
+            f"Mandatory broker_url Celery setting missing. Did we fail to parse config? {config_dict}"
+        )
+
 
     return config_dict
 

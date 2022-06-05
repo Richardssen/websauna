@@ -37,7 +37,10 @@ def get_breadcrumbs(context: Resource, request: Request, root_iface: type = None
     elems = []
     if not root_iface:
         root_iface = IRoot
-    assert issubclass(root_iface, Interface), "Traversing root must be declared by an interface, got {}".format(root_iface)
+    assert issubclass(
+        root_iface, Interface
+    ), f"Traversing root must be declared by an interface, got {root_iface}"
+
 
     # Looks like it is not possible to dig out the matched view from Pyramid request,
     # so we need to explicitly pass it if we want it to appear in URL
@@ -47,15 +50,18 @@ def get_breadcrumbs(context: Resource, request: Request, root_iface: type = None
 
     while context and not root_iface.providedBy(context):
         if not hasattr(context, "get_title"):
-            raise RuntimeError("Breadcrumbs part missing get_title(): {}".format(context))
+            raise RuntimeError(f"Breadcrumbs part missing get_title(): {context}")
 
         elems.append(dict(url=request.resource_url(context), name=get_human_readable_resource_name(context), resource=context))
 
         if not hasattr(context, "__parent__"):
-            raise RuntimeError("Broken traverse lineage on {}, __parent__ missing".format(context))
+            raise RuntimeError(f"Broken traverse lineage on {context}, __parent__ missing")
 
         if not isinstance(context, Resource):
-            raise RuntimeError("Lineage has item not compatible with breadcrums: {}".format(context))
+            raise RuntimeError(
+                f"Lineage has item not compatible with breadcrums: {context}"
+            )
+
 
         context = context.__parent__
 

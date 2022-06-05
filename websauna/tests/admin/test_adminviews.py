@@ -21,15 +21,16 @@ def test_pagination(web_server, browser, dbsession, init):
             u = create_user(
                 dbsession,
                 init.config.registry,
-                email="example{}@example.com".format(index)
+                email=f"example{index}@example.com",
             )
+
             dbsession.add(u)
 
     # quick check total users
     assert dbsession.query(User).count() == 101
 
     b = browser
-    b.visit(web_server + "/admin/models/user/listing")
+    b.visit(f"{web_server}/admin/models/user/listing")
 
     # pagination should show correct number of total
     assert b.is_text_present("Total 101 items")

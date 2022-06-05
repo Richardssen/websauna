@@ -95,11 +95,17 @@ class CRUD(_CRUD):
         column_name = self.mapper.mapping_attribute
 
         column_instance = getattr(model, column_name, None)
-        assert column_instance, "Model {} does not define column/attribute {} used for CRUD resource traversing".format(self.model, column_name)
+        assert (
+            column_instance
+        ), f"Model {self.model} does not define column/attribute {column_name} used for CRUD resource traversing"
+
 
         obj = self.get_query().filter(column_instance == id).first()
         if not obj:
-            raise KeyError("Object id {} was not found for CRUD {} using model {}".format(id, self, model))
+            raise KeyError(
+                f"Object id {id} was not found for CRUD {self} using model {model}"
+            )
+
 
         return obj
 

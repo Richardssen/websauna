@@ -12,12 +12,12 @@ from websauna.system.core.redis import get_redis
 
 @pytest.fixture(scope='module')
 def run_worker_and_beat(request, task_ini_file, watcher_getter):
-    ini_file = "ws://{}".format(task_ini_file)
+    ini_file = f"ws://{task_ini_file}"
     pid_file = "/tmp/celerybeat.pid"
 
     return watcher_getter(
         name='ws-celery',
-        arguments=[ini_file, '--', 'worker', '-B', '--pidfile={}'.format(pid_file)],
+        arguments=[ini_file, '--', 'worker', '-B', f'--pidfile={pid_file}'],
         checker=lambda: os.path.exists(pid_file),
         request=request,
     )

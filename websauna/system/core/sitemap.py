@@ -102,9 +102,7 @@ class Sitemap:
 
     def urls(self):
         """Return an iterable which goes through all SitemapItem objects in this Sitemap."""
-        for item in self.items:
-            yield item
-
+        yield from self.items
         for generator in self.generators:
             yield from generator()
 
@@ -148,26 +146,19 @@ class ReflectiveSitemapBuilder:
     def is_traversable_sitemap_route(self, route: Route):
         """Is this route such that it 1) is traversable 2) can be added to sitemap"""
 
-        if not route.factory:
-            # /notebook/*remainder
-            # static view
-            return False
-
-        return "*" in route.pattern
+        return "*" in route.pattern if route.factory else False
 
     def is_get_requestable(self, view_data: dict):
 
-        if not view_data.get("request_methods"):
-            return True
-
-        return "GET" in view_data["request_methods"]
+        return (
+            "GET" in view_data["request_methods"]
+            if view_data.get("request_methods")
+            else True
+        )
 
     def is_anonymous(self, view_data: dict):
 
-        # TODO: This does not handle the case where
-        # multiple derivates are stacked
-        derived = view_data.get("derived_callable")
-        if derived:
+        if derived := view_data.get("derived_callable"):
             if getattr(derived, "__permission__", None):
                 return False
 
@@ -300,7 +291,7 @@ class ReflectiveSitemapBuilder:
         """
 
         # chop off last part /container/*traverse'
-        start_path = "/".join(route.pattern.split("/")[0:-2]) + "/"
+        start_path = "/".join(route.pattern.split("/")[:-2]) + "/"
 
         # create a new request to traverse based on detected route pattern
         # dbsession must be passed here to prevent creating new dbsession
@@ -319,8 +310,7 @@ class ReflectiveSitemapBuilder:
 
         # {'virtual_root': <websauna.tests.sitemapsamples.SampleContainer object at 0x104656f98>, 'traversed': (), 'root': <websauna.tests.sitemapsamples.SampleContainer object at 0x104656f98>, 'virtual_root_path': (), 'view_name': 'container', 'subpath': (), 'context': <websauna.tests.sitemapsamples.SampleContainer object at 0x104656f98>}
         tdict = traverser(sample_request)
-        context = tdict["context"]
-        return context
+        return tdict["context"]
 
     def recurse_traversable(self, router: Router, route: Route, context: Resource):
         """Walk through traversable hierarchy.
@@ -404,9 +394,7 @@ def _get_route_data(route, registry):
     if route_intr.get('static', False) is True:
         return
 
-    view_intr = registry.introspector.related(route_intr)
-
-    if view_intr:
+    if view_intr := registry.introspector.related(route_intr):
         for view in view_intr:
             yield route.name, pattern, view
 

@@ -21,6 +21,6 @@ class Shell:
         from websauna.system.notebook.views import launch_context_sensitive_shell
 
         obj = self.context.get_object()
-        extra_script = "obj = dbsession.query({}).get({})".format(obj.__class__.__name__, obj.id)
-        extra_greeting = "* **obj** {}".format(self.context.get_title())
+        extra_script = f"obj = dbsession.query({obj.__class__.__name__}).get({obj.id})"
+        extra_greeting = f"* **obj** {self.context.get_title()}"
         return launch_context_sensitive_shell(self.request, extra_script, extra_greeting)

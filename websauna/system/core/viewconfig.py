@@ -155,9 +155,12 @@ class view_overrides(object):
             if attached_categories is not None:
 
                 for cname, category in attached_categories.items():
-                    if cls is not wrapped:
-                        if self.categories and cname not in self.categories:
-                            continue
+                    if (
+                        cls is not wrapped
+                        and self.categories
+                        and cname not in self.categories
+                    ):
+                        continue
                     callbacks = newcategories.get(cname, [])
                     newcallbacks = []
 

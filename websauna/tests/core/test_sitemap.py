@@ -80,11 +80,10 @@ def test_generator_items():
             self.name = name
 
         def location(self, request):
-            return "/" + str(self.name)
+            return f"/{str(self.name)}"
 
     def generator():
-        items = [FooItem(1), FooItem(2), FooItem(3)]
-        yield from items
+        yield from [FooItem(1), FooItem(2), FooItem(3)]
 
     with pyramid.testing.testConfig():
         request = DummyRequest()
@@ -116,7 +115,7 @@ def test_reflect_traverse(builder):
     urls = [i.location(request) for i in builder.sitemap.items if isinstance(i, TraverseItem)]
 
     # Admin traversing is protected by view permission
-    assert not(any("admin" in u for u in urls))
+    assert all("admin" not in u for u in urls)
 
     # We get default view (empty name) and named view
     assert any(u.endswith("/container/") for u in urls)
@@ -128,7 +127,7 @@ def test_reflect_traverse(builder):
     assert any("/nested/bar/additional" in u for u in urls)
 
     # See we dont' grab permissioned views
-    assert not (any("permissioned" in u for u in urls))
+    assert all("permissioned" not in u for u in urls)
 
 
 def test_reflect_build(builder):
@@ -149,4 +148,4 @@ def test_conditions(builder):
     urls = [i.location(request) for i in builder.sitemap.items if isinstance(i, TraverseItem)]
 
     assert any("/container/bar/conditional" in u for u in urls)
-    assert not any("/container/bar/skipped_conditional" in u for u in urls)
+    assert all("/container/bar/skipped_conditional" not in u for u in urls)

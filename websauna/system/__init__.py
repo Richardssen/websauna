@@ -300,8 +300,8 @@ class Initializer:
 
         # Quick helper to access settings
         def xget(section, key):
-            value = secrets.get(section + "." + key)
-            assert value is not None, "Missing secret settings for [{}]: {}".format(section, key)
+            value = secrets.get(f"{section}.{key}")
+            assert value is not None, f"Missing secret settings for [{section}]: {key}"
             return value
 
         for login in social_logins:
@@ -772,9 +772,7 @@ class Initializer:
         self.configure_model_admins()
         self.configure_database()
 
-        # Tests can pass us some extra initialization work on ad hoc
-        extra_init = self.global_config.get("extra_init")
-        if extra_init:
+        if extra_init := self.global_config.get("extra_init"):
             resolver = DottedNameResolver()
             extra_init = resolver.resolve(extra_init)
             extra_init(self)
@@ -808,9 +806,8 @@ class Initializer:
 
         dbsession.close()
 
-        if self._has_redis_sessions:
-            if not redis.is_sane_redis(self.config):
-                raise SanityCheckFailed("Could not connect to Redis server.\nWebsauna is configured to use Redis server for session data.\nIt cannot start up without a running Redis server.\nPlease consult your operating system community how to install and start a Redis server.")
+        if self._has_redis_sessions and not redis.is_sane_redis(self.config):
+            raise SanityCheckFailed("Could not connect to Redis server.\nWebsauna is configured to use Redis server for session data.\nIt cannot start up without a running Redis server.\nPlease consult your operating system community how to install and start a Redis server.")
 
     @event_source
     def wrap_wsgi_app(self, app):
@@ -860,8 +857,7 @@ class Initializer:
         """
         init = cls(global_config)
         init.run()
-        wsgi_app = init.make_wsgi_app()
-        return wsgi_app
+        return init.make_wsgi_app()
 
 
 def get_init(global_config, settings, init_cls=None) -> Initializer:
@@ -893,8 +889,7 @@ def get_init(global_config, settings, init_cls=None) -> Initializer:
             raise RuntimeError("INI file lacks websauna.init option")
         resolver = DottedNameResolver()
         init_cls = resolver.resolve(init_cls)
-    init = init_cls(global_config, settings)
-    return init
+    return init_cls(global_config, settings)
 
 
 class DemoInitializer(Initializer):
@@ -915,5 +910,4 @@ def main(global_config, **settings):
 
     init = DemoInitializer(global_config)
     init.run()
-    wsgi_app = init.make_wsgi_app()
-    return wsgi_app
+    return init.make_wsgi_app()

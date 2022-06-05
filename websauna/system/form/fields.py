@@ -25,8 +25,7 @@ def defer_widget_values(widget: type, values_callback: t.Callable, **kwargs) -> 
 
     @colander.deferred
     def _inner(node, kw):
-        widget = _widget(values=values_callback(node, kw), **kwargs)
-        return widget
+        return _widget(values=values_callback(node, kw), **kwargs)
 
     return _inner
 
@@ -68,21 +67,21 @@ class EnumValue(colander.String):
 
     def __init__(self, enum_class: type):
         super().__init__()
-        assert issubclass(enum_class, enum.Enum), "Expected Enum, got {}".format(enum_class)
+        assert issubclass(enum_class, enum.Enum), f"Expected Enum, got {enum_class}"
         self.enum_class = enum_class
 
     def deserialize(self, node: colander.SchemaNode, cstruct: str):
         """Parse incoming form values to Python objects if needed.
         """
-        if cstruct:
-            return self.enum_class(cstruct)
-        else:
-            return None
+        return self.enum_class(cstruct) if cstruct else None
 
     def serialize(self, node: colander.SchemaNode, _enum: enum.Enum) -> str:
         """Convert Enum object to str for widget processing."""
         if _enum:
-            assert isinstance(_enum, self.enum_class), "Expected {}, got {}".format(self.enum_class, _enum)
+            assert isinstance(
+                _enum, self.enum_class
+            ), f"Expected {self.enum_class}, got {_enum}"
+
             return _enum.value
         else:
             return _enum
@@ -119,9 +118,11 @@ class JSONValue(colander.String):
 
     def serialize(self, node: colander.SchemaNode, data: t.Union[list, dict]) -> str:
         """Convert Python objects to JSON string."""
-        if data:
-            assert isinstance(data, (list, dict, NestedMutationDict, NestedMutationList)), "Expected list or dict, got {}".format(data.__class__)
-            return json_serializer(data)
-        else:
+        if not data:
             # Noneish
             return data
+        assert isinstance(
+            data, (list, dict, NestedMutationDict, NestedMutationList)
+        ), f"Expected list or dict, got {data.__class__}"
+
+        return json_serializer(data)

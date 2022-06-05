@@ -35,14 +35,11 @@ class SessionInvalidationTweenFactory:
         self.registry = registry
 
     def __call__(self, request: Request):
-        user = request.user
-        if user:
+        if user := request.user:
             try:
-                session_authenticated_at = request.session.get("authenticated_at")
-
-                # User was deauthenticatd in this request for some reason
-                if session_authenticated_at:
-
+                if session_authenticated_at := request.session.get(
+                    "authenticated_at"
+                ):
                     if not user.is_valid_session(session_authenticated_at):
                         request.session.invalidate()
                         messages.add(request, kind="error", msg="Your have been logged out due to authentication changes.", msg_id="msg-session-invalidated")
@@ -57,5 +54,4 @@ class SessionInvalidationTweenFactory:
                 # now temporary just kill user object instead of failing with an internal error, so that development server doesn't fail with CSS etc. resources
                 request.user = None
 
-        response = self.handler(request)
-        return response
+        return self.handler(request)

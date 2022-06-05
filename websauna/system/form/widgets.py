@@ -23,7 +23,7 @@ class FriendlyUUIDWidget(deform.widget.TextInputWidget):
 
     def get_template_values(self, field, cstruct, kw):
         values = {'cstruct': str(cstruct), 'field': field, 'slug': uuid_to_slug(cstruct) if cstruct else ''}
-        values.update(kw)
+        values |= kw
         values.pop('template', None)
         return values
 

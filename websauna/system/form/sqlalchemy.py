@@ -36,8 +36,10 @@ def convert_query_to_tuples(query: Query, first_column: t.Union[str, t.Callable]
     if default_choice:
         result.append(('', default_choice))
 
-    for item in query:
-        result.append((first_column_getter(item), second_column_getter(item)))
+    result.extend(
+        (first_column_getter(item), second_column_getter(item))
+        for item in query
+    )
 
     return result
 
@@ -141,8 +143,7 @@ class ModelSet(ModelSchemaType, colander.Set):
         if appstruct is colander.null:
             return colander.null
 
-        values = self.preprocess_appstruct_values(node, appstruct)
-        return values
+        return self.preprocess_appstruct_values(node, appstruct)
 
     def deserialize_set_to_models(self, node, cstruct):
         dbsession = self.get_dbsession(node)
@@ -166,10 +167,13 @@ class ModelSet(ModelSchemaType, colander.Set):
 
     def query_items(self, node: colander.SchemaNode, dbsession: Session, model: type, match_column: Column, values: set) -> t.List[object]:
         """Query the actual model to get the concrete SQLAlchemy objects."""
-        if not values:
-            # Empty IN queries are not allowed
-            return []
-        return ModelSetResultList(dbsession.query(model).filter(match_column.in_(values)).all())
+        return (
+            ModelSetResultList(
+                dbsession.query(model).filter(match_column.in_(values)).all()
+            )
+            if values
+            else []
+        )
 
     def deserialize(self, node, cstruct):
 
@@ -177,7 +181,7 @@ class ModelSet(ModelSchemaType, colander.Set):
             return colander.null
 
         if not is_nonstr_iter(cstruct):
-            raise colander.Invalid(node, '{} is not iterable'.format(cstruct))
+            raise colander.Invalid(node, f'{cstruct} is not iterable')
 
         return self.deserialize_set_to_models(node, cstruct)
 
@@ -192,7 +196,7 @@ class UUIDForeignKeyValue(ForeignKeyValue):
 
     def __init__(self, model: type, match_column: t.Optional[str] = None):
         #: The name of the column from where we extract UUID value. Defaults to ``uuid``.
-        self.match_column = match_column if match_column else "uuid"
+        self.match_column = match_column or "uuid"
         super().__init__(model)
 
     def preprocess_cstruct_value(self, node, cstruct):
@@ -213,7 +217,7 @@ class UUIDModelSet(ModelSet):
     """
 
     def __init__(self, model: t.Optional[type] = None, match_column: t.Optional[str] = None, label_column: t.Optional[str] = None):
-        self.match_column = match_column if match_column else "uuid"
+        self.match_column = match_column or "uuid"
 
         if label_column:
             self.label_column = label_column

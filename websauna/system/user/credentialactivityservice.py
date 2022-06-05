@@ -66,8 +66,7 @@ class DefaultCredentialActivityService:
         """
         request = self.request
         user_registry = get_user_registry(request)
-        user = user_registry.get_user_by_password_reset_token(activation_code)
-        return user
+        return user_registry.get_user_by_password_reset_token(activation_code)
 
     def reset_password(self, activation_code: str, password: str, location: str = None) -> Response:
         """Perform actual password reset operations.

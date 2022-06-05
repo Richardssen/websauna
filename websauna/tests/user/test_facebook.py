@@ -82,9 +82,6 @@ def do_facebook_login_if_facebook_didnt_log_us_already(browser):
 
     if browser.is_element_present_by_css(FACEBOOK_LOGIN_TEST_CSS):
         do_facebook_login(browser)
-    else:
-        # Clicking btn-facebook-login goes directly through to the our login view
-        pass
 
 
 @pytest.mark.skipif(not os.environ.get("FACEBOOK_USER"), reason="Give Facebook user/pass as environment variables")
@@ -123,7 +120,7 @@ def test_facebook_second_login(web_server, browser, dbsession):
     b = browser
 
     # Initiate Facebook login with Authomatic
-    b.visit("{}/login".format(web_server))
+    b.visit(f"{web_server}/login")
     b.find_by_css(".btn-login-facebook").click()
 
     do_facebook_login_if_facebook_didnt_log_us_already(b)
@@ -134,7 +131,7 @@ def test_facebook_second_login(web_server, browser, dbsession):
 
     # And again!
 
-    b.visit("{}/login".format(web_server))
+    b.visit(f"{web_server}/login")
     b.find_by_css(".btn-login-facebook").click()
 
     do_facebook_login_if_facebook_didnt_log_us_already(b)

@@ -25,7 +25,7 @@ def merge_url_qs(url: str, **kw) -> str:
     ]
     qs = urlencode(sorted(kw.items()))
     if extra_qs:
-        qs += '&' + urlencode(extra_qs)
+        qs += f'&{urlencode(extra_qs)}'
     return urlunsplit((segments.scheme, segments.netloc, segments.path, qs, segments.fragment))
 
 
@@ -160,9 +160,7 @@ class Batch:
             num = int(request.params.get('batch_num', 0))
         except (TypeError, ValueError):
             num = 0
-        if num < 0:
-            num = 0
-
+        num = max(num, 0)
         try:
             size = int(request.params.get('batch_size', default_size))
         except (TypeError, ValueError):
@@ -195,14 +193,12 @@ class Batch:
         length = len(items)
         last = int(math.ceil(seqlen / float(size)) - 1)
 
-        first_url = None
         prev_url = None
         next_url = None
         last_url = None
         toggle_url = None
 
-        if num:
-            first_url = merge_url_qs(url, batch_size=size, batch_num=0)
+        first_url = merge_url_qs(url, batch_size=size, batch_num=0) if num else None
         if start >= size:
             prev_url = merge_url_qs(url, batch_size=size, batch_num=num - 1)
         if seqlen > end:
@@ -277,5 +273,6 @@ class DefaultPaginator:
             self.default_size = default_size
 
     def paginate(self, seq, request, count, url=None) -> Batch:
-        batch = Batch(seq, request, seqlen=count, url=url, default_size=self.default_size)
-        return batch
+        return Batch(
+            seq, request, seqlen=count, url=url, default_size=self.default_size
+        )

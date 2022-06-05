@@ -20,25 +20,27 @@ def resolve(uri):
 
     # Do we look like a relative file (no URL scheme)
     if "://" not in uri:
-        uri = "file://" + os.path.abspath(os.path.join(os.getcwd(), uri))
+        uri = f"file://{os.path.abspath(os.path.join(os.getcwd(), uri))}"
 
     parts = urlparse(uri)
 
-    assert parts.scheme in ("resource", "file"), "Only resource//: scheme supported, got {}".format(uri)
+    assert parts.scheme in (
+        "resource",
+        "file",
+    ), f"Only resource//: scheme supported, got {uri}"
 
-    if parts.scheme == "resource":
-        package = parts.netloc
-        args = package.split('.') + [parts.path.lstrip('/')]
-        path = os.path.join(*args)
 
-        req = pkg_resources.Requirement.parse(package)
-        assert _resource_manager.resource_exists(req, path), "Could not find {}".format(uri)
+    if parts.scheme != "resource":
+        return io.open(parts.path, "rb")
 
-        config_source = _resource_manager.resource_stream(req, path)
-    else:
-        config_source = io.open(parts.path, "rb")
+    package = parts.netloc
+    args = package.split('.') + [parts.path.lstrip('/')]
+    path = os.path.join(*args)
 
-    return config_source
+    req = pkg_resources.Requirement.parse(package)
+    assert _resource_manager.resource_exists(req, path), f"Could not find {uri}"
+
+    return _resource_manager.resource_stream(req, path)
 
 
 def read_ini_secrets(secrets_file, strict=True) -> dict:
@@ -89,8 +91,11 @@ def read_ini_secrets(secrets_file, strict=True) -> dict:
                 environment_variable = value[1:]
                 value = os.getenv(environment_variable, None)
                 if not value and strict:
-                    raise MissingSecretsEnvironmentVariable("Secrets key {} needs environment variable {} in file {} section {}".format(key, environment_variable, secrets_file, section))
+                    raise MissingSecretsEnvironmentVariable(
+                        f"Secrets key {key} needs environment variable {environment_variable} in file {secrets_file} section {section}"
+                    )
 
-            secrets["{}.{}".format(section, key)] = value
+
+            secrets[f"{section}.{key}"] = value
 
     return secrets
